@@ -1,0 +1,48 @@
+.inos-ad--sticky-mobile {
+	display: none;
+}
+
+@media (max-width: 781px) {
+	.inos-ad--sticky-mobile {
+		display: block;
+		position: sticky;
+		bottom: 0;
+		z-index: 30;
+		background: #fff;
+		max-width: 100%;
+		overflow: hidden;
+		padding-bottom: env(safe-area-inset-bottom, 0px);
+	}
+
+	.inos-ad--sticky-mobile img,
+	.inos-ad--sticky-mobile iframe,
+	.inos-ad--sticky-mobile ins {
+		max-width: 100%;
+		height: auto;
+	}
+}
+
+.inos-live-update {
+	border-top: 0;
+	padding: 1.15rem 0 1.25rem;
+}
+
+.inos-live-update__time {
+	font-size: 0.78rem;
+	color: inherit;
+}
+
+.inos-live-update.is-new {
+	animation: inos-live-enter 0.6s ease;
+}
+
+@keyframes inos-live-enter {
+	from {
+		opacity: 0;
+		transform: translateY(-0.4rem);
+	}
+	to {
+		opacity: 1;
+		transform: none;
+	}
+}

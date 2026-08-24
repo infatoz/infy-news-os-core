@@ -1,0 +1,10 @@
+# Infy News OS Core
+msgid ""
+msgstr ""
+"Project-Id-Version: Infy News OS Core 1.0.0\n"
+"Report-Msgid-Bugs-To: wordpress@infatoz.com\n"
+"POT-Creation-Date: 2026-08-21 00:00+0000\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Domain: infy-news-os-core\n"

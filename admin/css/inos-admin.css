@@ -1,0 +1,219 @@
+.inos-wrap .nav-tab-wrapper {
+	margin-bottom: 16px;
+}
+
+.inos-metabox p {
+	margin: 0 0 12px;
+}
+
+.inos-image-qa {
+	margin: 8px 0 0;
+	padding: 8px 10px;
+	border-left: 4px solid #dba617;
+	background: #fcf9e8;
+}
+
+.inos-image-qa--ok {
+	border-left-color: #00a32a;
+	background: #edfaef;
+}
+
+#inos-discover-warning {
+	margin: 12px 0;
+	padding: 10px 12px;
+	border-left: 4px solid #dba617;
+	background: #fcf9e8;
+}
+
+.inos-demo-panel {
+	max-width: 720px;
+	background: #fff;
+	border: 1px solid #c3c4c7;
+	padding: 20px 24px 24px;
+	margin-top: 8px;
+}
+
+.inos-demo-panel h2 {
+	margin-top: 0;
+}
+
+.inos-demo-panel__list {
+	margin: 0 0 1.25rem 1.25rem;
+}
+
+.inos-demo-progress {
+	margin: 1.25rem 0;
+}
+
+.inos-demo-progress__bar {
+	height: 12px;
+	background: #dcdcde;
+	border-radius: 999px;
+	overflow: hidden;
+}
+
+.inos-demo-progress__bar span {
+	display: block;
+	height: 100%;
+	width: 0;
+	background: #b42318;
+	transition: width 0.25s ease;
+}
+
+.inos-demo-progress__label {
+	margin: 8px 0 0;
+}
+
+.inos-demo-actions {
+	margin: 1rem 0;
+}
+
+.inos-demo-done {
+	margin: 1rem 0;
+}
+
+.inos-demo-done .button {
+	margin-right: 8px;
+}
+
+.inos-also-read {
+	margin: 0 0 16px;
+	padding: 12px 12px 10px;
+	background: #f6f7f7;
+	border: 1px solid #dcdcde;
+}
+
+.inos-also-read__picked {
+	margin: 8px 0;
+	padding: 0;
+	list-style: none;
+}
+
+.inos-also-read__picked li {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 8px;
+	padding: 6px 0;
+	border-bottom: 1px solid #dcdcde;
+}
+
+.inos-also-read__picked li:last-child {
+	border-bottom: 0;
+}
+
+.inos-also-read__results {
+	margin: 4px 0 0;
+	padding: 0;
+	list-style: none;
+	background: #fff;
+	border: 1px solid #8c8f94;
+	max-height: 220px;
+	overflow: auto;
+}
+
+.inos-also-read__results button {
+	display: block;
+	width: 100%;
+	text-align: left;
+	padding: 8px 10px;
+	border: 0;
+	background: transparent;
+	cursor: pointer;
+}
+
+.inos-also-read__results button:hover {
+	background: #f0f6fc;
+}
+
+.inos-labels-group p {
+	margin: 0 0 12px;
+}
+
+.inos-labels-group label {
+	font-weight: 600;
+}
+
+.inos-builder__lead {
+	max-width: 52rem;
+	margin: 0 0 1.25rem;
+}
+
+.inos-builder__toolbar {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	align-items: center;
+	margin: 8px 0 16px;
+}
+
+.inos-builder__list {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+	max-width: 52rem;
+}
+
+.inos-builder__item {
+	background: #fff;
+	border: 1px solid #c3c4c7;
+	margin: 0 0 8px;
+	border-radius: 2px;
+}
+
+.inos-builder__item.is-off {
+	opacity: 0.55;
+}
+
+.inos-builder__bar {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 8px 12px;
+	padding: 8px 12px;
+}
+
+.inos-builder__handle {
+	cursor: move;
+	color: #787c82;
+}
+
+.inos-builder__hint {
+	color: #646970;
+	flex: 1 1 auto;
+}
+
+.inos-builder__body {
+	border-top: 1px solid #dcdcde;
+	padding: 12px 14px 4px;
+	background: #f6f7f7;
+}
+
+.inos-builder__field {
+	margin: 0 0 12px;
+}
+
+.inos-builder__field label {
+	display: block;
+	font-weight: 600;
+	margin-bottom: 4px;
+}
+
+.inos-builder__field input[type="text"],
+.inos-builder__field input[type="number"],
+.inos-builder__field select,
+.inos-builder__field textarea {
+	width: 100%;
+	max-width: 36rem;
+}
+
+.inos-builder__check {
+	font-weight: 400;
+}
+
+.inos-builder__placeholder {
+	border: 1px dashed #2271b1;
+	height: 44px;
+	margin: 0 0 8px;
+	background: #f0f6fc;
+}
