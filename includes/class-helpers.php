@@ -207,7 +207,79 @@ function inos_reading_minutes( $post_id = 0 ) {
 }
 
 /**
- * Google News keywords: editor field, else section + tags.
+ * Comma-separated keyword string, max 10 unique values.
+ *
+ * @param array<int, string> $bits Raw keywords.
+ * @param int                $max  Max items.
+ * @return string
+ */
+function inos_format_keywords( $bits, $max = 10 ) {
+	$out  = array();
+	$seen = array();
+	foreach ( (array) $bits as $bit ) {
+		$bit = trim( wp_strip_all_tags( (string) $bit ) );
+		$bit = preg_replace( '/\s+/u', ' ', $bit );
+		if ( '' === $bit ) {
+			continue;
+		}
+		$key = function_exists( 'mb_strtolower' ) ? mb_strtolower( $bit, 'UTF-8' ) : strtolower( $bit );
+		if ( isset( $seen[ $key ] ) ) {
+			continue;
+		}
+		$seen[ $key ] = true;
+		$out[]        = $bit;
+		if ( count( $out ) >= $max ) {
+			break;
+		}
+	}
+	return implode( ', ', $out );
+}
+
+/**
+ * Distinctive tokens from a headline or phrase.
+ *
+ * @param string $text  Source text.
+ * @param int    $limit Max tokens.
+ * @return string[]
+ */
+function inos_keywords_from_text( $text, $limit = 8 ) {
+	$text = wp_strip_all_tags( (string) $text );
+	if ( '' === $text ) {
+		return array();
+	}
+
+	$parts = preg_split( '/[^\p{L}\p{N}+]+/u', $text, -1, PREG_SPLIT_NO_EMPTY );
+	if ( ! is_array( $parts ) ) {
+		return array();
+	}
+
+	$stop = array(
+		'a', 'an', 'the', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for', 'of',
+		'with', 'from', 'by', 'as', 'is', 'are', 'was', 'were', 'be', 'its', 'this',
+		'that', 'these', 'those', 'into', 'over', 'after', 'before', 'about', 'how',
+		'why', 'what', 'when', 'who', 'new', 'latest', 'just', 'has', 'have', 'had',
+		'will', 'can', 'vs', 'via',
+	);
+	$out  = array();
+	foreach ( $parts as $part ) {
+		$len = function_exists( 'mb_strlen' ) ? mb_strlen( $part ) : strlen( $part );
+		if ( $len < 2 ) {
+			continue;
+		}
+		$low = function_exists( 'mb_strtolower' ) ? mb_strtolower( $part, 'UTF-8' ) : strtolower( $part );
+		if ( in_array( $low, $stop, true ) ) {
+			continue;
+		}
+		$out[] = $part;
+		if ( count( $out ) >= $limit ) {
+			break;
+		}
+	}
+	return $out;
+}
+
+/**
+ * Google News keywords: editor field, else section + tags + headline tokens.
  *
  * @param int $post_id Post ID.
  * @return string Comma-separated, max 10.
@@ -220,9 +292,7 @@ function inos_get_news_keywords( $post_id = 0 ) {
 
 	$custom = trim( (string) get_post_meta( $post_id, '_inos_news_keywords', true ) );
 	if ( $custom ) {
-		$bits = array_filter( array_map( 'trim', explode( ',', $custom ) ) );
-		$bits = array_values( array_unique( array_map( 'wp_strip_all_tags', $bits ) ) );
-		return implode( ', ', array_slice( $bits, 0, 10 ) );
+		return inos_format_keywords( explode( ',', $custom ) );
 	}
 
 	$bits = array();
@@ -230,18 +300,114 @@ function inos_get_news_keywords( $post_id = 0 ) {
 	if ( $sec ) {
 		$bits[] = $sec->name;
 	}
-	$tags = get_the_tags( $post_id );
-	if ( $tags ) {
-		foreach ( $tags as $tag ) {
-			$bits[] = $tag->name;
-			if ( count( $bits ) >= 10 ) {
-				break;
+
+	$types = get_the_terms( $post_id, 'inos_article_type' );
+	if ( $types && ! is_wp_error( $types ) ) {
+		foreach ( $types as $type ) {
+			if ( $type && ! empty( $type->name ) && 'news' !== $type->slug ) {
+				$bits[] = $type->name;
 			}
 		}
 	}
 
-	$bits = array_values( array_unique( array_filter( array_map( 'wp_strip_all_tags', $bits ) ) ) );
-	return implode( ', ', array_slice( $bits, 0, 10 ) );
+	$kicker = trim( (string) get_post_meta( $post_id, '_inos_kicker', true ) );
+	if ( $kicker ) {
+		$bits[] = $kicker;
+	}
+
+	$tags = get_the_tags( $post_id );
+	if ( $tags ) {
+		foreach ( $tags as $tag ) {
+			$bits[] = $tag->name;
+		}
+	}
+
+	$formatted = inos_format_keywords( $bits );
+	if ( $formatted ) {
+		$count = substr_count( $formatted, ',' ) + 1;
+		if ( $count >= 3 ) {
+			return $formatted;
+		}
+	}
+
+	$title_bits = inos_keywords_from_text( get_the_title( $post_id ) );
+	return inos_format_keywords( array_merge( $bits, $title_bits ) );
+}
+
+/**
+ * Keywords for the current request (articles, homepage, archives).
+ *
+ * @return string Comma-separated, max 10.
+ */
+function inos_get_page_keywords() {
+	if ( is_singular( array( 'post', 'inos_live_blog' ) ) ) {
+		return inos_get_news_keywords( get_the_ID() );
+	}
+
+	if ( is_singular() ) {
+		$bits = inos_keywords_from_text( get_the_title() );
+		$pub  = function_exists( 'inos_get_option' ) ? (string) inos_get_option( 'publication_name', get_bloginfo( 'name' ) ) : get_bloginfo( 'name' );
+		if ( $pub ) {
+			$bits[] = $pub;
+		}
+		return inos_format_keywords( $bits );
+	}
+
+	if ( is_front_page() || is_home() ) {
+		$custom = function_exists( 'inos_get_option' ) ? trim( (string) inos_get_option( 'homepage_keywords', '' ) ) : '';
+		if ( $custom ) {
+			return inos_format_keywords( explode( ',', $custom ) );
+		}
+
+		$bits = array();
+		$pub  = function_exists( 'inos_get_option' ) ? (string) inos_get_option( 'publication_name', get_bloginfo( 'name' ) ) : get_bloginfo( 'name' );
+		if ( $pub ) {
+			$bits[] = $pub;
+		}
+		for ( $i = 1; $i <= 6; $i++ ) {
+			$term_id = function_exists( 'inos_get_option' ) ? absint( inos_get_option( 'section_' . $i, 0 ) ) : 0;
+			if ( ! $term_id ) {
+				continue;
+			}
+			$term = get_term( $term_id, 'category' );
+			if ( $term && ! is_wp_error( $term ) && ! empty( $term->name ) ) {
+				$bits[] = $term->name;
+			}
+		}
+		$desc = function_exists( 'inos_get_option' ) ? (string) inos_get_option( 'homepage_description', '' ) : '';
+		if ( $desc && count( $bits ) < 4 ) {
+			$bits = array_merge( $bits, inos_keywords_from_text( $desc, 4 ) );
+		}
+		return inos_format_keywords( $bits );
+	}
+
+	if ( is_category() || is_tag() || is_tax() ) {
+		$term = get_queried_object();
+		$bits = array();
+		if ( $term && ! empty( $term->name ) ) {
+			$bits[] = $term->name;
+		}
+		$pub = function_exists( 'inos_get_option' ) ? (string) inos_get_option( 'publication_name', get_bloginfo( 'name' ) ) : get_bloginfo( 'name' );
+		if ( $pub ) {
+			$bits[] = $pub;
+		}
+		return inos_format_keywords( $bits );
+	}
+
+	if ( is_author() ) {
+		$author = get_queried_object();
+		$bits   = array();
+		if ( $author && ! empty( $author->display_name ) ) {
+			$bits[] = $author->display_name;
+		}
+		$pub = function_exists( 'inos_get_option' ) ? (string) inos_get_option( 'publication_name', get_bloginfo( 'name' ) ) : get_bloginfo( 'name' );
+		if ( $pub ) {
+			$bits[] = $pub;
+		}
+		return inos_format_keywords( $bits );
+	}
+
+	return '';
 }
 
 /**

@@ -101,7 +101,7 @@ class INOS_Metabox {
 			<p>
 				<label for="inos_news_keywords"><strong><?php esc_html_e( 'Google News keywords', 'infy-news-os-core' ); ?></strong></label>
 				<input type="text" class="widefat" id="inos_news_keywords" name="inos_news_keywords" value="<?php echo esc_attr( $keywords ); ?>" placeholder="<?php esc_attr_e( 'AI, regulation, India', 'infy-news-os-core' ); ?>" />
-				<span class="description"><?php esc_html_e( 'Comma-separated, up to 10. Used in the news sitemap, news_keywords meta, and schema. Leave empty to use the section plus tags.', 'infy-news-os-core' ); ?></span>
+				<span class="description"><?php esc_html_e( 'Comma-separated, up to 10. Used in the news sitemap, keywords / news_keywords meta, and schema. Leave empty to use the section, tags, and headline.', 'infy-news-os-core' ); ?></span>
 			</p>
 			<p>
 				<label for="inos_source"><strong><?php esc_html_e( 'Source / wire', 'infy-news-os-core' ); ?></strong></label>

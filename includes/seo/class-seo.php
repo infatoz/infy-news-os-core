@@ -442,10 +442,13 @@ class INOS_SEO {
 			echo '<meta name="googlebot-news" content="' . esc_attr( $news ) . '" />' . "\n";
 		}
 
-		if ( is_singular( array( 'post', 'inos_live_blog' ) ) && inos_get_option( 'enable_news_keywords_meta', 1 ) && function_exists( 'inos_get_news_keywords' ) ) {
-			$keywords = inos_get_news_keywords( get_the_ID() );
+		if ( inos_get_option( 'enable_news_keywords_meta', 1 ) && function_exists( 'inos_get_page_keywords' ) ) {
+			$keywords = inos_get_page_keywords();
 			if ( $keywords ) {
-				echo '<meta name="news_keywords" content="' . esc_attr( $keywords ) . '" />' . "\n";
+				echo '<meta name="keywords" content="' . esc_attr( $keywords ) . '" />' . "\n";
+				if ( is_singular( array( 'post', 'inos_live_blog' ) ) ) {
+					echo '<meta name="news_keywords" content="' . esc_attr( $keywords ) . '" />' . "\n";
+				}
 			}
 		}
 	}

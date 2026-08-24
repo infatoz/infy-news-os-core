@@ -320,6 +320,13 @@ $look_url            = add_query_arg(
 					<td><textarea class="large-text" rows="3" id="inos_homepage_description" name="inos[homepage_description]"><?php echo esc_textarea( $s['homepage_description'] ); ?></textarea></td>
 				</tr>
 				<tr>
+					<th><label for="inos_homepage_keywords"><?php esc_html_e( 'Homepage keywords', 'infy-news-os-core' ); ?></label></th>
+					<td>
+						<input type="text" class="large-text" id="inos_homepage_keywords" name="inos[homepage_keywords]" value="<?php echo esc_attr( isset( $s['homepage_keywords'] ) ? $s['homepage_keywords'] : '' ); ?>" placeholder="<?php esc_attr_e( 'smartphones, AI, India', 'infy-news-os-core' ); ?>" />
+						<p class="description"><?php esc_html_e( 'Comma-separated, up to 10. Used in the homepage keywords meta tag. Leave empty to use the publication name and homepage sections.', 'infy-news-os-core' ); ?></p>
+					</td>
+				</tr>
+				<tr>
 					<th><?php esc_html_e( 'Archive indexing', 'infy-news-os-core' ); ?></th>
 					<td>
 						<label><input type="checkbox" name="inos[index_category_archives]" value="1" <?php checked( $s['index_category_archives'], 1 ); ?> /> <?php esc_html_e( 'Index category / section archives', 'infy-news-os-core' ); ?></label><br />
@@ -377,7 +384,7 @@ $look_url            = add_query_arg(
 				</tr>
 				<tr>
 					<th><?php esc_html_e( 'News keywords', 'infy-news-os-core' ); ?></th>
-					<td><label><input type="checkbox" name="inos[enable_news_keywords_meta]" value="1" <?php checked( ! empty( $s['enable_news_keywords_meta'] ), true ); ?> /> <?php esc_html_e( 'Output a news_keywords meta tag from the article field, section, and tags', 'infy-news-os-core' ); ?></label></td>
+					<td><label><input type="checkbox" name="inos[enable_news_keywords_meta]" value="1" <?php checked( ! empty( $s['enable_news_keywords_meta'] ), true ); ?> /> <?php esc_html_e( 'Output keywords and news_keywords meta tags in the document head (article field, section, tags, or headline)', 'infy-news-os-core' ); ?></label></td>
 				</tr>
 				<tr>
 					<th><?php esc_html_e( 'Google News RSS', 'infy-news-os-core' ); ?></th>
