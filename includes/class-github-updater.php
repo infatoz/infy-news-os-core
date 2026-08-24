@@ -24,7 +24,7 @@ class INOS_GitHub_Updater {
 	const PLUGIN_SLUG = 'infy-news-os-core';
 	const THEME_SLUG  = 'infy-news-os';
 	const BRANCH      = 'main';
-	const CACHE_TTL   = 21600;
+	const CACHE_TTL   = 900;
 
 	/**
 	 * Hooks once.
@@ -42,6 +42,14 @@ class INOS_GitHub_Updater {
 		add_filter( 'plugins_api', array( __CLASS__, 'plugins_api' ), 10, 3 );
 		add_filter( 'themes_api', array( __CLASS__, 'themes_api' ), 10, 3 );
 		add_action( 'upgrader_process_complete', array( __CLASS__, 'clear_cache' ), 10, 2 );
+		add_action( 'load-update-core.php', array( __CLASS__, 'clear_cache' ), 1 );
+		add_action( 'load-plugins.php', array( __CLASS__, 'flush_on_force_check' ), 1 );
+		add_action( 'load-themes.php', array( __CLASS__, 'flush_on_force_check' ), 1 );
+		add_action( 'wp_clean_update_cache', array( __CLASS__, 'clear_cache' ) );
+		add_action( 'admin_post_inos_check_github_updates', array( __CLASS__, 'handle_manual_check' ) );
+		if ( defined( 'INOS_CORE_BASENAME' ) ) {
+			add_filter( 'plugin_action_links_' . INOS_CORE_BASENAME, array( __CLASS__, 'plugin_check_link' ), 30 );
+		}
 	}
 
 	/**
@@ -241,22 +249,31 @@ class INOS_GitHub_Updater {
 	 * @return array<string, string>
 	 */
 	public static function remote_info( $type ) {
-		$key  = 'inos_gh_' . ( 'theme' === $type ? 'theme' : 'plugin' );
+		$key    = 'inos_gh_' . ( 'theme' === $type ? 'theme' : 'plugin' );
 		$cached = get_site_transient( $key );
-		if ( is_array( $cached ) && ! empty( $cached['version'] ) ) {
+		if ( ! self::is_force_check() && is_array( $cached ) && ! empty( $cached['version'] ) && ! empty( $cached['package'] ) ) {
 			return $cached;
 		}
 
 		$repo = 'theme' === $type ? self::THEME_REPO : self::PLUGIN_REPO;
-		$info = self::from_release( $repo, $type );
-		if ( empty( $info['version'] ) ) {
-			$info = self::from_branch( $repo, $type );
+		$info = self::from_branch( $repo, $type );
+		$rel  = self::from_release( $repo, $type );
+
+		if ( empty( $info['version'] ) && ! empty( $rel['version'] ) ) {
+			$info = $rel;
+		} elseif ( ! empty( $info['version'] ) && ! empty( $rel['version'] ) ) {
+			if ( ! empty( $rel['changelog'] ) ) {
+				$info['changelog'] = $rel['changelog'];
+			}
+			if ( version_compare( (string) $rel['version'], (string) $info['version'], '=' ) && ! empty( $rel['package'] ) ) {
+				$info['package'] = $rel['package'];
+			}
 		}
 
 		if ( ! empty( $info['version'] ) && ! empty( $info['package'] ) ) {
 			set_site_transient( $key, $info, self::CACHE_TTL );
 		} else {
-			set_site_transient( $key, array( 'version' => '', 'package' => '' ), HOUR_IN_SECONDS );
+			set_site_transient( $key, array( 'version' => '', 'package' => '' ), 15 * MINUTE_IN_SECONDS );
 		}
 
 		return $info;
@@ -280,7 +297,9 @@ class INOS_GitHub_Updater {
 			return array();
 		}
 
-		$version = ltrim( (string) $data['tag_name'], 'vV' );
+		$tag     = (string) $data['tag_name'];
+		$headers = self::headers_from_repo_file( $repo, $type, $tag );
+		$version = ! empty( $headers['version'] ) ? $headers['version'] : ltrim( $tag, 'vV' );
 		$package = '';
 		if ( ! empty( $data['assets'] ) && is_array( $data['assets'] ) ) {
 			foreach ( $data['assets'] as $asset ) {
@@ -293,15 +312,13 @@ class INOS_GitHub_Updater {
 			}
 		}
 		if ( ! $package ) {
-			$package = 'https://github.com/' . $repo . '/archive/refs/tags/' . rawurlencode( (string) $data['tag_name'] ) . '.zip';
+			$package = 'https://github.com/' . $repo . '/archive/refs/tags/' . rawurlencode( $tag ) . '.zip';
 		}
 
 		$changelog = '';
 		if ( ! empty( $data['body'] ) ) {
 			$changelog = wp_kses_post( wpautop( $data['body'] ) );
 		}
-
-		$headers = self::headers_from_repo_file( $repo, $type, (string) $data['tag_name'] );
 
 		return array_merge(
 			$headers,
@@ -425,8 +442,60 @@ class INOS_GitHub_Updater {
 	 * @param WP_Upgrader          $upgrader   Upgrader.
 	 * @param array<string, mixed> $hook_extra Extra.
 	 */
-	public static function clear_cache( $upgrader, $hook_extra ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter
+	public static function clear_cache( $upgrader = null, $hook_extra = array() ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter
 		delete_site_transient( 'inos_gh_plugin' );
 		delete_site_transient( 'inos_gh_theme' );
+	}
+
+	/**
+	 * Dashboard → Updates “Check again” must drop the GitHub cache too.
+	 */
+	public static function flush_on_force_check() {
+		if ( empty( $_GET['force-check'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			return;
+		}
+		self::clear_cache();
+	}
+
+	/**
+	 * Whether this request asked WordPress to re-check updates.
+	 *
+	 * @return bool
+	 */
+	private static function is_force_check() {
+		return ! empty( $_GET['force-check'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	}
+
+	/**
+	 * Plugin row shortcut to bust GitHub + core update transients.
+	 *
+	 * @param array<string, string> $links Links.
+	 * @return array<string, string>
+	 */
+	public static function plugin_check_link( $links ) {
+		if ( ! current_user_can( 'update_plugins' ) ) {
+			return $links;
+		}
+		$url = wp_nonce_url(
+			admin_url( 'admin-post.php?action=inos_check_github_updates' ),
+			'inos_check_github_updates'
+		);
+		$links['inos-github'] = '<a href="' . esc_url( $url ) . '">' . esc_html__( 'Check GitHub', 'infy-news-os-core' ) . '</a>';
+		return $links;
+	}
+
+	/**
+	 * Manual GitHub re-check.
+	 */
+	public static function handle_manual_check() {
+		if ( ! current_user_can( 'update_plugins' ) && ! current_user_can( 'update_themes' ) ) {
+			wp_die( esc_html__( 'Sorry, you are not allowed to update plugins or themes.', 'infy-news-os-core' ) );
+		}
+		check_admin_referer( 'inos_check_github_updates' );
+		self::clear_cache();
+		delete_site_transient( 'update_plugins' );
+		delete_site_transient( 'update_themes' );
+		wp_safe_redirect( admin_url( 'update-core.php?force-check=1' ) );
+		exit;
 	}
 }
