@@ -5,7 +5,7 @@ Tags: news, seo, schema, google-news, editorial
 Requires at least: 6.7
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.6.25
+Stable tag: 1.6.26
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -21,13 +21,17 @@ Production sites receive plugin updates from GitHub ([infatoz/infy-news-os-core]
 
 == Installation ==
 
-1. Plugins → Add Plugin → Upload Plugin → choose `infy-news-os-core-1.6.9.zip`.
+1. Plugins → Add Plugin → Upload Plugin → choose `infy-news-os-core-1.6.26.zip`.
 2. If WordPress reports the plugin is already installed, choose **Replace current with uploaded**.
 3. Activate Infy News OS Core (it stays active after a replace if it was already active).
 4. Install and activate the Infy News OS theme.
 5. The setup wizard opens after activation. Install AMP and Web Stories, then pick a site look.
 
 == Changelog ==
+
+= 1.6.26 =
+* Safe to activate next to a GitHub ZIP leftover folder (`infy-news-os-core-main`) without a fatal.
+* GitHub / tag ZIPs rename to `infy-news-os-core` on first upload, not only on replace.
 
 = 1.6.25 =
 * Admin dashboard with stack health, stats, and grouped navigation.

@@ -7,6 +7,10 @@
 
 defined( 'ABSPATH' ) || exit;
 
+if ( function_exists( 'inos_get_option' ) ) {
+	return;
+}
+
 /**
  * Get a plugin setting.
  *

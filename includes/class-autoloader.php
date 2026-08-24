@@ -7,6 +7,10 @@
 
 defined( 'ABSPATH' ) || exit;
 
+if ( class_exists( 'INOS_Autoloader' ) ) {
+	return;
+}
+
 /**
  * Maps INOS_* classes to files.
  */

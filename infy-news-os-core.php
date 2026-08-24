@@ -3,7 +3,7 @@
  * Plugin Name:       Infy News OS Core
  * Plugin URI:        https://infatoz.com
  * Description:       Core engine for Infy News OS — settings, editorial workflow, schema, Google News/Discover/Search optimization, AMP and Web Stories (official plugins), ads, and newsletter.
- * Version:           1.6.25
+ * Version:           1.6.26
  * Requires at least: 6.7
  * Requires PHP:      7.4
  * Author:            Infatoz Technologies LLP
@@ -19,7 +19,11 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'INOS_CORE_VERSION', '1.6.25' );
+if ( defined( 'INOS_CORE_VERSION' ) ) {
+	return;
+}
+
+define( 'INOS_CORE_VERSION', '1.6.26' );
 define( 'INOS_CORE_FILE', __FILE__ );
 define( 'INOS_CORE_PATH', plugin_dir_path( __FILE__ ) );
 define( 'INOS_CORE_URL', plugin_dir_url( __FILE__ ) );
@@ -30,6 +34,7 @@ require_once INOS_CORE_PATH . 'includes/class-autoloader.php';
 INOS_Autoloader::register();
 
 require_once INOS_CORE_PATH . 'includes/class-helpers.php';
+require_once INOS_CORE_PATH . 'includes/class-activator.php';
 
 register_activation_hook( INOS_CORE_FILE, array( 'INOS_Activator', 'activate' ) );
 register_deactivation_hook( INOS_CORE_FILE, array( 'INOS_Activator', 'deactivate' ) );

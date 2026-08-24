@@ -7,6 +7,14 @@
 
 defined( 'ABSPATH' ) || exit;
 
+if ( ! class_exists( 'WP_Customize_Control' ) ) {
+	return;
+}
+
+if ( class_exists( 'INOS_Customize_Post_Control' ) ) {
+	return;
+}
+
 /**
  * Dropdown of recent posts.
  */

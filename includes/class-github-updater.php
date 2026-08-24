@@ -186,6 +186,9 @@ class INOS_GitHub_Updater {
 			return $source;
 		}
 
+		$source = rtrim( str_replace( '\\', '/', (string) $source ), '/' ) . '/';
+		$base   = basename( untrailingslashit( $source ) );
+
 		$slug = '';
 		if ( ! empty( $hook_extra['plugin'] ) && self::is_core_plugin_file( $hook_extra['plugin'] ) ) {
 			$slug = self::PLUGIN_SLUG;
@@ -193,15 +196,17 @@ class INOS_GitHub_Updater {
 			$slug = self::THEME_SLUG;
 		} elseif ( ! empty( $hook_extra['themes'] ) && in_array( self::THEME_SLUG, (array) $hook_extra['themes'], true ) ) {
 			$slug = self::THEME_SLUG;
+		} elseif ( 0 === strpos( $base, self::PLUGIN_SLUG ) ) {
+			$slug = self::PLUGIN_SLUG;
+		} elseif ( 0 === strpos( $base, self::THEME_SLUG ) ) {
+			$slug = self::THEME_SLUG;
 		}
 
 		if ( ! $slug ) {
 			return $source;
 		}
 
-		$source     = rtrim( str_replace( '\\', '/', $source ), '/' ) . '/';
-		$wanted     = trailingslashit( $remote_source ) . $slug;
-		$base       = basename( untrailingslashit( $source ) );
+		$wanted = trailingslashit( $remote_source ) . $slug;
 		if ( $base === $slug ) {
 			return $source;
 		}

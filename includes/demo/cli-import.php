@@ -5,6 +5,10 @@
  * @package InfyNewsOS
  */
 
+if ( defined( 'ABSPATH' ) ) {
+	return;
+}
+
 if ( php_sapi_name() !== 'cli' ) {
 	exit;
 }
