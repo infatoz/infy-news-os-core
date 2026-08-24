@@ -37,9 +37,36 @@ class INOS_Customizer {
 		$wp_customize->add_panel(
 			'inos_homepage',
 			array(
-				'title'       => __( 'Infy News OS', 'infy-news-os-core' ),
-				'description' => __( 'Pick a site look, then tune colors, typefaces, masthead, subscribe, article chrome, and the headline ticker. Layout blocks are edited in Infy News OS → Homepage builder.', 'infy-news-os-core' ),
+				'title'       => __( 'Infy News OS — Global', 'infy-news-os-core' ),
+				'description' => __( 'Site look, colors, type, and layout tokens. Header, footer, and blog have their own panels.', 'infy-news-os-core' ),
+				'priority'    => 28,
+				'capability'  => 'edit_theme_options',
+			)
+		);
+		$wp_customize->add_panel(
+			'inos_header',
+			array(
+				'title'       => __( 'Infy News OS — Header', 'infy-news-os-core' ),
+				'description' => __( 'Masthead, sticky header, top bar, mobile menu colors, and the headline ticker.', 'infy-news-os-core' ),
+				'priority'    => 29,
+				'capability'  => 'edit_theme_options',
+			)
+		);
+		$wp_customize->add_panel(
+			'inos_footer',
+			array(
+				'title'       => __( 'Infy News OS — Footer', 'infy-news-os-core' ),
+				'description' => __( 'Footer copy, theme credit, and scroll to top.', 'infy-news-os-core' ),
 				'priority'    => 30,
+				'capability'  => 'edit_theme_options',
+			)
+		);
+		$wp_customize->add_panel(
+			'inos_blog',
+			array(
+				'title'       => __( 'Infy News OS — Blog', 'infy-news-os-core' ),
+				'description' => __( 'Archives, article chrome, and breadcrumbs. Homepage blocks are Infy News OS → Homepage builder.', 'infy-news-os-core' ),
+				'priority'    => 31,
 				'capability'  => 'edit_theme_options',
 			)
 		);
@@ -48,12 +75,14 @@ class INOS_Customizer {
 		self::section_light_theme( $wp_customize );
 		self::section_dark_theme( $wp_customize );
 		self::section_typography( $wp_customize );
+		self::section_layout( $wp_customize );
 		self::section_branding( $wp_customize );
 		self::section_topbar( $wp_customize );
 		self::section_drawer( $wp_customize );
+		self::section_ticker( $wp_customize );
+		self::section_footer( $wp_customize );
 		self::section_article( $wp_customize );
 		self::section_archives( $wp_customize );
-		self::section_ticker( $wp_customize );
 	}
 
 	/**
@@ -92,6 +121,21 @@ class INOS_Customizer {
 				'default'           => 'bar',
 				'sanitize_callback' => array( __CLASS__, 'sanitize_title_style' ),
 				'transport'         => 'postMessage',
+			)
+		);
+		$wp_customize->add_control(
+			self::OPTION . '[home_title_style]',
+			array(
+				'label'   => __( 'Block title style', 'infy-news-os-core' ),
+				'section' => 'inos_theme_look',
+				'type'    => 'select',
+				'choices' => array(
+					'bar'       => __( 'Bar', 'infy-news-os-core' ),
+					'underline' => __( 'Underline', 'infy-news-os-core' ),
+					'boxed'     => __( 'Boxed', 'infy-news-os-core' ),
+					'pill'      => __( 'Pill', 'infy-news-os-core' ),
+					'minimal'   => __( 'Minimal', 'infy-news-os-core' ),
+				),
 			)
 		);
 	}
@@ -147,6 +191,27 @@ class INOS_Customizer {
 			array( 'INOS_Fonts', 'sanitize_serif' ),
 			__( 'Story titles and article body.', 'infy-news-os-core' )
 		);
+		self::add_number( $wp_customize, 'font_size_base', __( 'Body size (px)', 'infy-news-os-core' ), 'inos_theme_fonts', 18, 14, 22, __( 'Base size for article body and UI copy.', 'infy-news-os-core' ) );
+	}
+
+	/**
+	 * Container, buttons, and type radius.
+	 *
+	 * @param WP_Customize_Manager $wp_customize Manager.
+	 */
+	private static function section_layout( $wp_customize ) {
+		$wp_customize->add_section(
+			'inos_theme_layout',
+			array(
+				'title'       => __( 'Layout', 'infy-news-os-core' ),
+				'description' => __( 'Site container, article measure, and button corners. Homepage columns are Infy News OS → Homepage builder.', 'infy-news-os-core' ),
+				'panel'       => 'inos_homepage',
+				'priority'    => 14,
+			)
+		);
+		self::add_number( $wp_customize, 'container_width', __( 'Container width (px)', 'infy-news-os-core' ), 'inos_theme_layout', 1180, 960, 1600, __( 'Max width of the masthead, homepage, and archives.', 'infy-news-os-core' ) );
+		self::add_number( $wp_customize, 'content_width', __( 'Article measure (px)', 'infy-news-os-core' ), 'inos_theme_layout', 760, 560, 900, __( 'WordPress content_width and the article column.', 'infy-news-os-core' ) );
+		self::add_number( $wp_customize, 'button_radius', __( 'Button radius (px)', 'infy-news-os-core' ), 'inos_theme_layout', 0, 0, 24, __( 'Subscribe, load more, and call-to-action buttons. 0 keeps sharp newspaper corners.', 'infy-news-os-core' ) );
 	}
 
 	/**
@@ -288,7 +353,7 @@ class INOS_Customizer {
 			array(
 				'title'       => __( 'Masthead & subscribe', 'infy-news-os-core' ),
 				'description' => __( 'Theme colors are in Light theme and Dark theme. This section is masthead chrome.', 'infy-news-os-core' ),
-				'panel'       => 'inos_homepage',
+				'panel'       => 'inos_header',
 				'priority'    => 13,
 			)
 		);
@@ -325,6 +390,15 @@ class INOS_Customizer {
 			$sticky_mobile,
 			__( 'Keep the logo bar at the top while scrolling on phones and tablets.', 'infy-news-os-core' )
 		);
+		self::add_checkbox(
+			$wp_customize,
+			'sticky_header_compact',
+			__( 'Shrink sticky header while scrolling', 'infy-news-os-core' ),
+			'inos_home_branding',
+			true,
+			1,
+			__( 'Tighter masthead once the page has scrolled. Turn off to keep full height.', 'infy-news-os-core' )
+		);
 	}
 
 	/**
@@ -338,7 +412,7 @@ class INOS_Customizer {
 			array(
 				'title'       => __( 'Date, time & custom text', 'infy-news-os-core' ),
 				'description' => __( 'Shown in the masthead utility bar (and the mobile menu date). Formats use PHP date tokens, for example l, F j, Y or g:i a.', 'infy-news-os-core' ),
-				'panel'       => 'inos_homepage',
+				'panel'       => 'inos_header',
 			)
 		);
 
@@ -384,7 +458,7 @@ class INOS_Customizer {
 			array(
 				'title'       => __( 'Mobile menu', 'infy-news-os-core' ),
 				'description' => __( 'Colors for the slide-out navigation. Menu items, search, social, subscribe, and widgets are Infy News OS → Mobile menu. Assign a WordPress menu under Appearance → Menus → Mobile menu.', 'infy-news-os-core' ),
-				'panel'       => 'inos_homepage',
+				'panel'       => 'inos_header',
 			)
 		);
 
@@ -405,7 +479,7 @@ class INOS_Customizer {
 			array(
 				'title'       => __( 'Article', 'infy-news-os-core' ),
 				'description' => __( 'Share bar and related stories on article pages. The article details rail is Infy News OS → Article sidebar (add, edit, reorder, or remove blocks; WordPress widgets are one block type). Same related keys as Infy News OS → Editorial / Homepage. Keep the first related batch small so the list height stays stable (less layout shift while images load). AMP shows the full related list without a Load more button and hides the sidebar.', 'infy-news-os-core' ),
-				'panel'       => 'inos_homepage',
+				'panel'       => 'inos_blog',
 			)
 		);
 
@@ -474,7 +548,7 @@ class INOS_Customizer {
 			array(
 				'title'       => __( 'Archives', 'infy-news-os-core' ),
 				'description' => __( 'How category, tag, author, date, search, live coverage, and latest listings move between pages. AMP always uses numbered pages. Same setting as Infy News OS → Editorial.', 'infy-news-os-core' ),
-				'panel'       => 'inos_homepage',
+				'panel'       => 'inos_blog',
 			)
 		);
 
@@ -491,6 +565,17 @@ class INOS_Customizer {
 			'refresh',
 			array( 'INOS_Settings', 'sanitize_archive_pagination' )
 		);
+		self::add_select(
+			$wp_customize,
+			'archive_layout',
+			__( 'Archive layout', 'infy-news-os-core' ),
+			'inos_home_archives',
+			array(
+				'list' => __( 'List (lead + compact)', 'infy-news-os-core' ),
+				'grid' => __( 'Card grid', 'infy-news-os-core' ),
+			)
+		);
+		self::add_checkbox( $wp_customize, 'show_breadcrumbs', __( 'Show breadcrumbs', 'infy-news-os-core' ), 'inos_home_archives', false, 1, __( 'Category trail on archives and articles.', 'infy-news-os-core' ) );
 	}
 
 	/**
@@ -504,7 +589,7 @@ class INOS_Customizer {
 			array(
 				'title'       => __( 'Headline ticker', 'infy-news-os-core' ),
 				'description' => __( 'The same controls as Infy News OS → Homepage. The ticker is not a homepage builder block.', 'infy-news-os-core' ),
-				'panel'       => 'inos_homepage',
+				'panel'       => 'inos_header',
 			)
 		);
 
@@ -543,6 +628,25 @@ class INOS_Customizer {
 				'home' => __( 'Homepage only', 'infy-news-os-core' ),
 			)
 		);
+	}
+
+	/**
+	 * Footer copy and utilities.
+	 *
+	 * @param WP_Customize_Manager $wp_customize Manager.
+	 */
+	private static function section_footer( $wp_customize ) {
+		$wp_customize->add_section(
+			'inos_theme_footer',
+			array(
+				'title'       => __( 'Footer', 'infy-news-os-core' ),
+				'description' => __( 'Footer menus are Appearance → Menus. This section is copy, credit, and the back-to-top control.', 'infy-news-os-core' ),
+				'panel'       => 'inos_footer',
+			)
+		);
+		self::add_text( $wp_customize, 'footer_text', __( 'Footer blurb', 'infy-news-os-core' ), 'inos_theme_footer', false, __( 'Short line under the site name. Blank uses the tagline.', 'infy-news-os-core' ) );
+		self::add_checkbox( $wp_customize, 'show_theme_credit', __( 'Show theme credit', 'infy-news-os-core' ), 'inos_theme_footer', false, 1 );
+		self::add_checkbox( $wp_customize, 'scroll_top', __( 'Scroll to top button', 'infy-news-os-core' ), 'inos_theme_footer', false, 1 );
 	}
 
 	/**
@@ -853,11 +957,15 @@ class INOS_Customizer {
 			$dmuted
 		);
 		$css .= sprintf(
-			':root{--inos-sans:%s;--inos-serif:%s;--inos-radius:%s;--inos-shadow:%s;}',
+			':root{--inos-sans:%s;--inos-serif:%s;--inos-radius:%s;--inos-shadow:%s;--inos-wrap:%spx;--inos-measure:%spx;--inos-btn-radius:%spx;--inos-font-size:%spx;}',
 			$sans,
 			$serif,
 			$radius,
-			$shadow
+			$shadow,
+			max( 960, min( 1600, absint( inos_get_option( 'container_width', 1180 ) ) ) ),
+			max( 560, min( 900, absint( inos_get_option( 'content_width', 760 ) ) ) ),
+			max( 0, min( 24, absint( inos_get_option( 'button_radius', 0 ) ) ) ),
+			max( 14, min( 22, absint( inos_get_option( 'font_size_base', 18 ) ) ) )
 		);
 		$handle = wp_style_is( 'inos-editorial', 'enqueued' ) ? 'inos-editorial' : 'inos-theme';
 		wp_add_inline_style( $handle, $css );
@@ -873,6 +981,10 @@ class INOS_Customizer {
 		if ( is_customize_preview() ) {
 			$classes[] = 'inos-customizer-preview';
 		}
+		if ( ! inos_get_option( 'sticky_header_compact', 1 ) ) {
+			$classes[] = 'inos-sticky-full';
+		}
+		$classes[] = 'inos-archive--' . sanitize_html_class( (string) inos_get_option( 'archive_layout', 'list' ) );
 		if ( is_front_page() ) {
 			$classes[] = 'inos-home-layout';
 			$classes[] = 'inos-hero--' . sanitize_html_class( (string) inos_get_option( 'hero_layout', 'lead-grid' ) );

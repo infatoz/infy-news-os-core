@@ -34,7 +34,7 @@ class INOS_Home_Builder {
 			),
 			'hero'         => array(
 				'label'  => __( 'Hero / featured', 'infy-news-os-core' ),
-				'fields' => array( 'layout', 'count', 'show_excerpt', 'unique' ),
+				'fields' => array( 'layout', 'count', 'category', 'author', 'offset', 'show_excerpt', 'unique' ),
 			),
 			'web_stories'  => array(
 				'label'  => __( 'Web Stories', 'infy-news-os-core' ),
@@ -42,15 +42,15 @@ class INOS_Home_Builder {
 			),
 			'category'     => array(
 				'label'  => __( 'Category row', 'infy-news-os-core' ),
-				'fields' => array( 'title', 'category', 'count', 'layout', 'orderby', 'unique', 'show_more', 'more_text', 'show_excerpt', 'show_meta', 'show_thumb', 'dark' ),
+				'fields' => array( 'title', 'category', 'author', 'count', 'offset', 'layout', 'orderby', 'unique', 'show_more', 'more_text', 'show_excerpt', 'show_meta', 'show_thumb', 'dark' ),
 			),
 			'posts'        => array(
 				'label'  => __( 'Posts block', 'infy-news-os-core' ),
-				'fields' => array( 'title', 'category', 'tag', 'count', 'layout', 'orderby', 'unique', 'show_more', 'more_text', 'show_excerpt', 'show_meta', 'show_thumb', 'dark' ),
+				'fields' => array( 'title', 'category', 'tag', 'author', 'count', 'offset', 'layout', 'orderby', 'unique', 'show_more', 'more_text', 'show_excerpt', 'show_meta', 'show_thumb', 'dark' ),
 			),
 			'slider'       => array(
 				'label'  => __( 'Featured slider', 'infy-news-os-core' ),
-				'fields' => array( 'title', 'category', 'count', 'orderby', 'unique', 'show_excerpt' ),
+				'fields' => array( 'title', 'category', 'author', 'count', 'offset', 'orderby', 'unique', 'show_excerpt' ),
 			),
 			'tabs'         => array(
 				'label'  => __( 'Category tabs', 'infy-news-os-core' ),
@@ -91,6 +91,14 @@ class INOS_Home_Builder {
 			'html'         => array(
 				'label'  => __( 'Custom HTML', 'infy-news-os-core' ),
 				'fields' => array( 'title', 'html', 'dark' ),
+			),
+			'cta'          => array(
+				'label'  => __( 'Call to action', 'infy-news-os-core' ),
+				'fields' => array( 'title', 'subtitle', 'url', 'more_text', 'dark' ),
+			),
+			'video'        => array(
+				'label'  => __( 'Video / embed', 'infy-news-os-core' ),
+				'fields' => array( 'title', 'url', 'html', 'dark' ),
 			),
 		);
 	}
@@ -167,6 +175,15 @@ class INOS_Home_Builder {
 			'ad_slot'      => 'between_cards',
 			'html'         => '',
 			'tabs'         => '',
+			'author'       => 0,
+			'offset'       => 0,
+			'url'          => '',
+			'css_class'    => '',
+			'hide_mobile'  => 0,
+			'hide_desktop' => 0,
+			'pad_y'        => '',
+			'bg'           => '',
+			'title_style'  => '',
 		);
 		if ( 'hero' === $type ) {
 			$base['layout'] = 'lead-grid';
@@ -358,6 +375,18 @@ class INOS_Home_Builder {
 		$out['ad_slot']      = in_array( $slot, array( 'header', 'below_ticker', 'between_cards', 'sidebar', 'footer' ), true ) ? $slot : 'between_cards';
 		$out['html']         = isset( $mod['html'] ) ? wp_kses_post( $mod['html'] ) : '';
 		$out['tabs']         = isset( $mod['tabs'] ) ? sanitize_text_field( $mod['tabs'] ) : '';
+		$out['author']       = isset( $mod['author'] ) ? absint( $mod['author'] ) : 0;
+		$out['offset']       = isset( $mod['offset'] ) ? max( 0, min( 50, absint( $mod['offset'] ) ) ) : 0;
+		$out['url']          = isset( $mod['url'] ) ? esc_url_raw( $mod['url'] ) : '';
+		$out['css_class']    = isset( $mod['css_class'] ) ? sanitize_text_field( $mod['css_class'] ) : '';
+		$out['hide_mobile']  = empty( $mod['hide_mobile'] ) ? 0 : 1;
+		$out['hide_desktop'] = empty( $mod['hide_desktop'] ) ? 0 : 1;
+		$pad                 = isset( $mod['pad_y'] ) ? sanitize_key( $mod['pad_y'] ) : '';
+		$out['pad_y']        = in_array( $pad, array( 'none', 'sm', 'md', 'lg' ), true ) ? $pad : '';
+		$bg                  = isset( $mod['bg'] ) ? sanitize_key( $mod['bg'] ) : '';
+		$out['bg']           = in_array( $bg, array( 'paper', 'card', 'muted', 'accent' ), true ) ? $bg : '';
+		$style               = isset( $mod['title_style'] ) ? sanitize_key( $mod['title_style'] ) : '';
+		$out['title_style']  = in_array( $style, array( 'bar', 'underline', 'boxed', 'pill', 'minimal' ), true ) ? $style : '';
 		return $out;
 	}
 
@@ -382,6 +411,12 @@ class INOS_Home_Builder {
 		}
 		if ( ! empty( $mod['tag'] ) ) {
 			$args['tag_id'] = absint( $mod['tag'] );
+		}
+		if ( ! empty( $mod['author'] ) ) {
+			$args['author'] = absint( $mod['author'] );
+		}
+		if ( ! empty( $mod['offset'] ) ) {
+			$args['offset'] = absint( $mod['offset'] );
 		}
 		if ( $unique && self::$used_ids ) {
 			$args['post__not_in'] = self::$used_ids;
@@ -597,5 +632,63 @@ class INOS_Home_Builder {
 			'categories' => $cats,
 			'tags'       => $tags,
 		);
+	}
+
+	/**
+	 * Author dropdown.
+	 *
+	 * @return array<int, string>
+	 */
+	public static function author_choices() {
+		$out   = array( 0 => __( 'All authors', 'infy-news-os-core' ) );
+		$users = get_users(
+			array(
+				'capability' => 'edit_posts',
+				'orderby'    => 'display_name',
+				'number'     => 80,
+				'fields'     => array( 'ID', 'display_name' ),
+			)
+		);
+		foreach ( $users as $user ) {
+			$out[ (int) $user->ID ] = $user->display_name;
+		}
+		return $out;
+	}
+
+	/**
+	 * CSS classes for a module wrapper.
+	 *
+	 * @param array<string, mixed> $mod Module.
+	 * @return string
+	 */
+	public static function module_class( $mod ) {
+		$classes = array( 'inos-block' );
+		if ( ! empty( $mod['dark'] ) ) {
+			$classes[] = 'inos-block--dark';
+		}
+		if ( ! empty( $mod['bg'] ) ) {
+			$classes[] = 'inos-block--bg-' . sanitize_html_class( $mod['bg'] );
+		}
+		if ( ! empty( $mod['pad_y'] ) ) {
+			$classes[] = 'inos-block--pad-' . sanitize_html_class( $mod['pad_y'] );
+		}
+		if ( ! empty( $mod['hide_mobile'] ) ) {
+			$classes[] = 'inos-hide-mobile';
+		}
+		if ( ! empty( $mod['hide_desktop'] ) ) {
+			$classes[] = 'inos-hide-desktop';
+		}
+		if ( ! empty( $mod['title_style'] ) ) {
+			$classes[] = 'inos-titles--' . sanitize_html_class( $mod['title_style'] );
+		}
+		if ( ! empty( $mod['css_class'] ) ) {
+			foreach ( preg_split( '/\s+/', (string) $mod['css_class'] ) as $bit ) {
+				$bit = sanitize_html_class( $bit );
+				if ( $bit ) {
+					$classes[] = $bit;
+				}
+			}
+		}
+		return implode( ' ', array_unique( $classes ) );
 	}
 }

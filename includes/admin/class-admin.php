@@ -32,6 +32,9 @@ class INOS_Admin {
 	public static function action_links( $links ) {
 		$url     = admin_url( 'admin.php?page=inos-settings' );
 		$links[] = '<a href="' . esc_url( $url ) . '">' . esc_html__( 'Settings', 'infy-news-os-core' ) . '</a>';
+		if ( class_exists( 'INOS_Setup' ) ) {
+			$links[] = '<a href="' . esc_url( INOS_Setup::url( 'welcome' ) ) . '">' . esc_html__( 'Setup wizard', 'infy-news-os-core' ) . '</a>';
+		}
 		$links[] = '<a href="' . esc_url( admin_url( 'admin.php?page=inos-settings&tab=demo' ) ) . '">' . esc_html__( 'Import demo', 'infy-news-os-core' ) . '</a>';
 		return $links;
 	}
@@ -101,6 +104,54 @@ class INOS_Admin {
 				__( 'Fonts', 'infy-news-os-core' ),
 				'edit_theme_options',
 				$fonts_url,
+			);
+			$look_url = add_query_arg(
+				array(
+					'autofocus[section]' => 'inos_theme_look',
+					'url'                => home_url( '/' ),
+				),
+				admin_url( 'customize.php' )
+			);
+			$submenu['inos-settings'][] = array( // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+				__( 'Site look', 'infy-news-os-core' ),
+				'edit_theme_options',
+				$look_url,
+			);
+			$layout_url = add_query_arg(
+				array(
+					'autofocus[section]' => 'inos_theme_layout',
+					'url'                => home_url( '/' ),
+				),
+				admin_url( 'customize.php' )
+			);
+			$submenu['inos-settings'][] = array( // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+				__( 'Layout', 'infy-news-os-core' ),
+				'edit_theme_options',
+				$layout_url,
+			);
+			$header_url = add_query_arg(
+				array(
+					'autofocus[panel]' => 'inos_header',
+					'url'              => home_url( '/' ),
+				),
+				admin_url( 'customize.php' )
+			);
+			$submenu['inos-settings'][] = array( // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+				__( 'Header', 'infy-news-os-core' ),
+				'edit_theme_options',
+				$header_url,
+			);
+			$footer_url = add_query_arg(
+				array(
+					'autofocus[panel]' => 'inos_footer',
+					'url'              => home_url( '/' ),
+				),
+				admin_url( 'customize.php' )
+			);
+			$submenu['inos-settings'][] = array( // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+				__( 'Footer', 'infy-news-os-core' ),
+				'edit_theme_options',
+				$footer_url,
 			);
 		}
 		if ( current_user_can( 'manage_options' ) ) {
@@ -174,6 +225,7 @@ class INOS_Admin {
 			true
 		);
 		$tax = class_exists( 'INOS_Home_Builder' ) ? INOS_Home_Builder::tax_choices() : array( 'categories' => array(), 'tags' => array() );
+		$authors = class_exists( 'INOS_Home_Builder' ) ? INOS_Home_Builder::author_choices() : array( 0 => __( 'All authors', 'infy-news-os-core' ) );
 		$orderby = array(
 			'date'          => __( 'Latest', 'infy-news-os-core' ),
 			'modified'      => __( 'Recently updated', 'infy-news-os-core' ),
@@ -202,6 +254,7 @@ class INOS_Admin {
 					),
 					'cats'           => $tax['categories'],
 					'tags'           => $tax['tags'],
+					'authors'        => $authors,
 					'menus'          => INOS_Drawer::menu_choices(),
 					'defaults'       => INOS_Drawer::defaults(),
 					'blank'          => INOS_Drawer::blank( 'menu' ),
@@ -227,6 +280,7 @@ class INOS_Admin {
 					),
 					'cats'           => $tax['categories'],
 					'tags'           => $tax['tags'],
+					'authors'        => $authors,
 					'defaults'       => INOS_Article_Sidebar::defaults(),
 					'blank'          => INOS_Article_Sidebar::blank( 'posts' ),
 					'orderby'        => $orderby,
@@ -250,6 +304,7 @@ class INOS_Admin {
 				),
 				'cats'           => $tax['categories'],
 				'tags'           => $tax['tags'],
+				'authors'        => $authors,
 				'defaults'       => class_exists( 'INOS_Home_Builder' ) ? INOS_Home_Builder::defaults() : array(),
 				'blank'          => class_exists( 'INOS_Home_Builder' ) ? INOS_Home_Builder::blank( 'posts' ) : array(),
 				'orderby'        => $orderby,
@@ -303,6 +358,7 @@ class INOS_Admin {
 	 */
 	public static function tabs() {
 		return array(
+			'dashboard'   => __( 'Dashboard', 'infy-news-os-core' ),
 			'general'     => __( 'General', 'infy-news-os-core' ),
 			'labels'      => __( 'Language / Labels', 'infy-news-os-core' ),
 			'publisher'   => __( 'Publisher', 'infy-news-os-core' ),
@@ -325,6 +381,93 @@ class INOS_Admin {
 	}
 
 	/**
+	 * Sidebar groups for the admin panel.
+	 *
+	 * @return array<string, array{label:string, tabs:string[]}>
+	 */
+	public static function tab_groups() {
+		return array(
+			'overview' => array(
+				'label' => __( 'Overview', 'infy-news-os-core' ),
+				'tabs'  => array( 'dashboard' ),
+			),
+			'design'   => array(
+				'label' => __( 'Design', 'infy-news-os-core' ),
+				'tabs'  => array( 'builder', 'homepage', 'article-sidebar', 'drawer', 'labels' ),
+			),
+			'newsroom' => array(
+				'label' => __( 'Newsroom', 'infy-news-os-core' ),
+				'tabs'  => array( 'general', 'editorial', 'publisher', 'demo' ),
+			),
+			'search'   => array(
+				'label' => __( 'Search', 'infy-news-os-core' ),
+				'tabs'  => array( 'seo', 'google-news', 'schema', 'tracking' ),
+			),
+			'grow'     => array(
+				'label' => __( 'Grow', 'infy-news-os-core' ),
+				'tabs'  => array( 'ads', 'newsletter', 'amp-stories' ),
+			),
+			'speed'    => array(
+				'label' => __( 'Speed', 'infy-news-os-core' ),
+				'tabs'  => array( 'performance', 'images' ),
+			),
+		);
+	}
+
+	/**
+	 * Dashboard metric cards.
+	 *
+	 * @return array<int, array{label:string, value:string, url:string}>
+	 */
+	public static function dashboard_stats() {
+		$posts = wp_count_posts( 'post' );
+		$live  = post_type_exists( 'inos_live_blog' ) ? wp_count_posts( 'inos_live_blog' ) : null;
+		$subs  = 0;
+		if ( class_exists( 'INOS_Newsletter' ) ) {
+			global $wpdb;
+			$table = INOS_Newsletter::table();
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+			$subs = (int) $wpdb->get_var( "SELECT COUNT(id) FROM {$table}" );
+		}
+		$mods = class_exists( 'INOS_Home_Builder' ) ? count( INOS_Home_Builder::all() ) : 0;
+		$amp  = class_exists( 'INOS_AMP' ) && INOS_AMP::is_active();
+		$ws   = class_exists( 'INOS_Web_Stories' ) && INOS_Web_Stories::is_active();
+
+		return array(
+			array(
+				'label' => __( 'Published stories', 'infy-news-os-core' ),
+				'value' => isset( $posts->publish ) ? (string) $posts->publish : '0',
+				'url'   => admin_url( 'edit.php' ),
+			),
+			array(
+				'label' => __( 'Live blogs', 'infy-news-os-core' ),
+				'value' => ( $live && isset( $live->publish ) ) ? (string) $live->publish : '0',
+				'url'   => admin_url( 'edit.php?post_type=inos_live_blog' ),
+			),
+			array(
+				'label' => __( 'Subscribers', 'infy-news-os-core' ),
+				'value' => (string) $subs,
+				'url'   => admin_url( 'admin.php?page=inos-subscribers' ),
+			),
+			array(
+				'label' => __( 'Homepage blocks', 'infy-news-os-core' ),
+				'value' => (string) $mods,
+				'url'   => admin_url( 'admin.php?page=inos-settings&tab=builder' ),
+			),
+			array(
+				'label' => __( 'AMP', 'infy-news-os-core' ),
+				'value' => $amp ? __( 'On', 'infy-news-os-core' ) : __( 'Off', 'infy-news-os-core' ),
+				'url'   => admin_url( 'admin.php?page=inos-settings&tab=amp-stories' ),
+			),
+			array(
+				'label' => __( 'Web Stories', 'infy-news-os-core' ),
+				'value' => $ws ? __( 'On', 'infy-news-os-core' ) : __( 'Off', 'infy-news-os-core' ),
+				'url'   => admin_url( 'admin.php?page=inos-settings&tab=amp-stories' ),
+			),
+		);
+	}
+
+	/**
 	 * Render settings page.
 	 */
 	public static function render() {
@@ -332,10 +475,10 @@ class INOS_Admin {
 			return;
 		}
 		settings_errors( 'inos_settings' );
-		$tab  = isset( $_GET['tab'] ) ? sanitize_key( wp_unslash( $_GET['tab'] ) ) : 'general'; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$tab  = isset( $_GET['tab'] ) ? sanitize_key( wp_unslash( $_GET['tab'] ) ) : 'dashboard'; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$tabs = self::tabs();
 		if ( ! isset( $tabs[ $tab ] ) ) {
-			$tab = 'general';
+			$tab = 'dashboard';
 		}
 		$s = INOS_Settings::all();
 		include INOS_CORE_PATH . 'admin/views/settings-page.php';

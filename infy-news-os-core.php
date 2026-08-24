@@ -3,7 +3,7 @@
  * Plugin Name:       Infy News OS Core
  * Plugin URI:        https://infatoz.com
  * Description:       Core engine for Infy News OS — settings, editorial workflow, schema, Google News/Discover/Search optimization, AMP and Web Stories (official plugins), ads, and newsletter.
- * Version:           1.6.22
+ * Version:           1.6.25
  * Requires at least: 6.7
  * Requires PHP:      7.4
  * Author:            Infatoz Technologies LLP
@@ -12,14 +12,14 @@
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain:       infy-news-os-core
  * Domain Path:       /languages
- * Update URI:        https://infatoz.com
+ * Update URI:        https://github.com/infatoz/infy-news-os-core
  *
  * @package InfyNewsOS
  */
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'INOS_CORE_VERSION', '1.6.22' );
+define( 'INOS_CORE_VERSION', '1.6.25' );
 define( 'INOS_CORE_FILE', __FILE__ );
 define( 'INOS_CORE_PATH', plugin_dir_path( __FILE__ ) );
 define( 'INOS_CORE_URL', plugin_dir_url( __FILE__ ) );

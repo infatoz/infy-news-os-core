@@ -20,7 +20,7 @@ $preview = add_query_arg(
 ?>
 <div class="inos-builder" data-inos-builder>
 	<p class="inos-builder__lead">
-		<?php esc_html_e( 'Stack blocks the way Newspaper, Jannah, and other magazine themes do: drag to reorder, open a block to set category, layout, count, and whether stories can repeat. Colors and the headline ticker are in Appearance → Customize.', 'infy-news-os-core' ); ?>
+		<?php esc_html_e( 'Stack blocks like a magazine theme: drag to reorder, duplicate, and open a block for query, layout, spacing, background, and device visibility. Global colors live in Appearance → Customize.', 'infy-news-os-core' ); ?>
 		<a href="<?php echo esc_url( $preview ); ?>"><?php esc_html_e( 'Open live preview', 'infy-news-os-core' ); ?></a>
 	</p>
 

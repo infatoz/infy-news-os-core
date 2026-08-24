@@ -241,6 +241,7 @@ class INOS_Labels {
 					'accountability'   => __( 'Accountability', 'infy-news-os-core' ),
 					'copyright'        => __( '© %1$s %2$s', 'infy-news-os-core' ),
 					'theme_credit'     => __( 'Theme by Infatoz Technologies LLP', 'infy-news-os-core' ),
+					'back_to_top'      => __( 'Back to top', 'infy-news-os-core' ),
 					'pagination_prev'  => __( 'Previous', 'infy-news-os-core' ),
 					'pagination_next'  => __( 'Next', 'infy-news-os-core' ),
 					'load_more'        => __( 'Load more stories', 'infy-news-os-core' ),

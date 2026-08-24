@@ -21,6 +21,9 @@ class INOS_Activator {
 	 */
 	public static function activate() {
 		self::install( true );
+		if ( class_exists( 'INOS_Setup' ) ) {
+			INOS_Setup::schedule_redirect();
+		}
 	}
 
 	/**
@@ -56,6 +59,9 @@ class INOS_Activator {
 		$stored = (string) get_option( 'inos_core_version', '' );
 		if ( $stored === INOS_CORE_VERSION ) {
 			return;
+		}
+		if ( $stored && class_exists( 'INOS_Setup' ) && ! INOS_Setup::is_complete() ) {
+			INOS_Setup::mark_complete();
 		}
 		self::install( false );
 	}

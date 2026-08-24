@@ -204,6 +204,15 @@ class INOS_Settings {
 			'web_stories_title'        => __( 'Stories', 'infy-news-os-core' ),
 			'web_stories_count'        => 10,
 			'web_stories_view'         => 'circles',
+			'container_width'          => 1180,
+			'content_width'            => 760,
+			'button_radius'            => 0,
+			'font_size_base'           => 18,
+			'footer_text'              => '',
+			'scroll_top'               => 1,
+			'archive_layout'           => 'list',
+			'show_breadcrumbs'         => 1,
+			'sticky_header_compact'    => 1,
 		);
 	}
 
@@ -351,6 +360,8 @@ class INOS_Settings {
 			'font_serif',
 			'home_kicker',
 			'home_title_style',
+			'footer_text',
+			'archive_layout',
 			'accent_color',
 			'secondary_color',
 			'mast_color',
@@ -430,6 +441,10 @@ class INOS_Settings {
 			'web_stories_count',
 			'also_read_count',
 			'image_quality',
+			'container_width',
+			'content_width',
+			'button_radius',
+			'font_size_base',
 		);
 
 		foreach ( $int_keys as $key ) {
@@ -497,6 +512,8 @@ class INOS_Settings {
 			'show_also_read',
 			'related_load_more',
 			'show_theme_credit',
+			'scroll_top',
+			'show_breadcrumbs',
 			'home_sidebar',
 			'home_unique_posts',
 			'enable_speakable',
@@ -507,6 +524,7 @@ class INOS_Settings {
 			'sticky_header',
 			'sticky_header_desktop',
 			'sticky_header_mobile',
+			'sticky_header_compact',
 			'sticky_share',
 			'article_reader_tools',
 			'mid_article_also_read',
@@ -582,6 +600,30 @@ class INOS_Settings {
 		}
 		if ( ! in_array( $out['home_title_style'], array( 'bar', 'underline', 'boxed', 'pill', 'minimal' ), true ) ) {
 			$out['home_title_style'] = 'bar';
+		}
+		if ( ! in_array( $out['archive_layout'], array( 'list', 'grid' ), true ) ) {
+			$out['archive_layout'] = 'list';
+		}
+		if ( $out['container_width'] < 960 ) {
+			$out['container_width'] = 1180;
+		}
+		if ( $out['container_width'] > 1600 ) {
+			$out['container_width'] = 1600;
+		}
+		if ( $out['content_width'] < 560 ) {
+			$out['content_width'] = 760;
+		}
+		if ( $out['content_width'] > 900 ) {
+			$out['content_width'] = 900;
+		}
+		if ( $out['button_radius'] > 24 ) {
+			$out['button_radius'] = 24;
+		}
+		if ( $out['font_size_base'] < 14 ) {
+			$out['font_size_base'] = 18;
+		}
+		if ( $out['font_size_base'] > 22 ) {
+			$out['font_size_base'] = 22;
 		}
 		if ( ! in_array( $out['web_stories_view'], array( 'circles', 'carousel', 'grid' ), true ) ) {
 			$out['web_stories_view'] = 'circles';

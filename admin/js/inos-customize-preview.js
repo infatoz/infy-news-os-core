@@ -248,4 +248,40 @@
 			});
 		});
 	});
+
+	api('inos_settings[container_width]', function (value) {
+		value.bind(function (to) {
+			document.documentElement.style.setProperty('--inos-wrap', parseInt(to, 10) + 'px');
+		});
+	});
+	api('inos_settings[content_width]', function (value) {
+		value.bind(function (to) {
+			document.documentElement.style.setProperty('--inos-measure', parseInt(to, 10) + 'px');
+		});
+	});
+	api('inos_settings[button_radius]', function (value) {
+		value.bind(function (to) {
+			document.documentElement.style.setProperty('--inos-btn-radius', parseInt(to, 10) + 'px');
+		});
+	});
+	api('inos_settings[font_size_base]', function (value) {
+		value.bind(function (to) {
+			document.documentElement.style.setProperty('--inos-font-size', parseInt(to, 10) + 'px');
+		});
+	});
+	api('inos_settings[sticky_header_compact]', function (value) {
+		value.bind(function (to) {
+			document.body.classList.toggle('inos-sticky-full', !to);
+			window.dispatchEvent(new Event('scroll'));
+		});
+	});
+	api('inos_settings[archive_layout]', function (value) {
+		value.bind(function (to) {
+			document.body.classList.toggle('inos-archive--grid', to === 'grid');
+			document.body.classList.toggle('inos-archive--list', to === 'list');
+			document.querySelectorAll('.inos-archive--feed').forEach(function (el) {
+				el.classList.toggle('inos-archive--grid', to === 'grid');
+			});
+		});
+	});
 })(wp.customize);

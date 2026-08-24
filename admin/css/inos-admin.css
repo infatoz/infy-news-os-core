@@ -217,3 +217,394 @@
 	margin: 0 0 8px;
 	background: #f0f6fc;
 }
+
+.inos-quickstart {
+	max-width: 52rem;
+	margin: 16px 0 20px;
+	padding: 16px 18px 12px;
+	background: #fff;
+	border: 1px solid #c3c4c7;
+}
+
+.inos-quickstart__intro h2 {
+	margin: 0 0 6px;
+}
+
+.inos-quickstart__intro p {
+	margin: 0 0 12px;
+	color: #50575e;
+}
+
+.inos-quickstart__links {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	margin: 0 0 12px;
+}
+
+.inos-quickstart__status {
+	margin: 0;
+	padding: 8px 0 0;
+	list-style: none;
+	border-top: 1px solid #dcdcde;
+}
+
+.inos-quickstart__status li {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 8px 12px;
+	padding: 8px 0;
+	border-bottom: 1px solid #f0f0f1;
+}
+
+.inos-quickstart__status li:last-child {
+	border-bottom: 0;
+}
+
+.inos-quickstart__action .button {
+	margin: 0;
+}
+
+.inos-setup {
+	max-width: 56rem;
+}
+
+.inos-setup__steps {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px 0;
+	margin: 12px 0 20px;
+	padding: 0;
+	list-style: none;
+	counter-reset: inos-step;
+}
+
+.inos-setup__steps li {
+	display: flex;
+	align-items: center;
+	counter-increment: inos-step;
+}
+
+.inos-setup__steps li + li::before {
+	content: "\2192";
+	margin: 0 10px;
+	color: #787c82;
+}
+
+.inos-setup__steps a,
+.inos-setup__steps span {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	font-weight: 600;
+	text-decoration: none;
+}
+
+.inos-setup__steps a::before,
+.inos-setup__steps span::before {
+	content: counter(inos-step);
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 22px;
+	height: 22px;
+	border-radius: 999px;
+	background: #dcdcde;
+	color: #1d2327;
+	font-size: 12px;
+}
+
+.inos-setup__steps .is-current span::before,
+.inos-setup__steps .is-done a::before {
+	background: #1d2327;
+	color: #fff;
+}
+
+.inos-setup__panel {
+	background: #fff;
+	border: 1px solid #c3c4c7;
+	padding: 20px 24px 16px;
+}
+
+.inos-setup__panel h2 {
+	margin-top: 0;
+}
+
+.inos-setup__table {
+	margin: 12px 0 16px;
+}
+
+.inos-setup__table th {
+	width: 18%;
+}
+
+.inos-setup__detail {
+	display: inline-block;
+	margin-left: 8px;
+	color: #50575e;
+}
+
+.inos-setup__pill {
+	display: inline-block;
+	padding: 2px 8px;
+	border-radius: 999px;
+	font-size: 12px;
+	font-weight: 600;
+	background: #dcdcde;
+}
+
+.inos-setup__pill.is-ok {
+	background: #edfaef;
+	color: #005c12;
+}
+
+.inos-setup__pill.is-info {
+	background: #f0f6fc;
+	color: #0a4b78;
+}
+
+.inos-setup__pill.is-warn {
+	background: #fcf9e8;
+	color: #614200;
+}
+
+.inos-setup__actions {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 12px;
+	margin: 16px 0 8px;
+}
+
+.inos-setup__skip {
+	margin-left: 4px;
+}
+
+.inos-setup__presets {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+	gap: 10px;
+}
+
+.inos-setup__preset {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	padding: 12px;
+	border: 1px solid #c3c4c7;
+	background: #fff;
+	cursor: pointer;
+}
+
+.inos-setup__preset input {
+	margin: 0 0 4px;
+}
+
+.inos-setup__preset span {
+	color: #50575e;
+	font-size: 13px;
+}
+
+.inos-setup__next {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	margin: 0 0 16px;
+	padding: 0;
+	list-style: none;
+}
+
+.inos-setup__next li {
+	margin: 0;
+}
+
+.inos-app__head {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: flex-end;
+	justify-content: space-between;
+	gap: 12px;
+	margin: 8px 0 16px;
+}
+
+.inos-app__head h1 {
+	margin: 0;
+}
+
+.inos-app__head-actions {
+	margin: 0;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+}
+
+.inos-app__layout {
+	display: grid;
+	grid-template-columns: 220px minmax(0, 1fr);
+	gap: 24px;
+	align-items: start;
+}
+
+.inos-app__nav {
+	background: #fff;
+	border: 1px solid #c3c4c7;
+	padding: 12px 0 16px;
+	position: sticky;
+	top: 46px;
+}
+
+.inos-app__nav-label {
+	margin: 12px 14px 4px;
+	font-size: 11px;
+	font-weight: 600;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+	color: #646970;
+}
+
+.inos-app__nav-link {
+	display: block;
+	padding: 6px 14px;
+	text-decoration: none;
+	color: #1d2327;
+}
+
+.inos-app__nav-link:hover,
+.inos-app__nav-link.is-active {
+	background: #f0f6fc;
+	color: #0a4b78;
+	font-weight: 600;
+}
+
+.inos-app__tabs {
+	display: none;
+}
+
+.inos-dash__hero {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: space-between;
+	gap: 12px;
+	background: #1d2327;
+	color: #fff;
+	padding: 20px 24px;
+	margin-bottom: 16px;
+}
+
+.inos-dash__hero h2 {
+	margin: 0 0 4px;
+	color: #fff;
+}
+
+.inos-dash__hero p {
+	margin: 0;
+	opacity: 0.8;
+}
+
+.inos-dash__hero-actions {
+	margin: 0;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	align-items: center;
+}
+
+.inos-dash__stats {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+	gap: 10px;
+	margin-bottom: 16px;
+}
+
+.inos-dash__stat {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	background: #fff;
+	border: 1px solid #c3c4c7;
+	padding: 14px 16px;
+	text-decoration: none;
+	color: inherit;
+}
+
+.inos-dash__stat strong {
+	font-size: 22px;
+	line-height: 1.2;
+}
+
+.inos-dash__stat span {
+	color: #646970;
+}
+
+.inos-dash__grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+	gap: 12px;
+}
+
+.inos-dash__card {
+	background: #fff;
+	border: 1px solid #c3c4c7;
+	padding: 16px 18px 12px;
+}
+
+.inos-dash__card h3 {
+	margin-top: 0;
+}
+
+.inos-dash__health,
+.inos-dash__links {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.inos-dash__health li,
+.inos-dash__links li {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 8px;
+	padding: 8px 0;
+	border-bottom: 1px solid #f0f0f1;
+}
+
+.inos-dash__links a {
+	text-decoration: none;
+}
+
+.inos-builder__group {
+	margin-top: 12px;
+	padding-top: 8px;
+	border-top: 1px solid #dcdcde;
+}
+
+.inos-builder__group-title {
+	margin: 0 0 8px;
+	font-weight: 600;
+}
+
+@media (max-width: 960px) {
+	.inos-app__layout {
+		grid-template-columns: 1fr;
+	}
+
+	.inos-app__nav {
+		position: static;
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0 8px;
+		padding: 8px 10px;
+	}
+
+	.inos-app__nav-label {
+		flex: 0 0 100%;
+		margin: 8px 0 0;
+	}
+
+	.inos-app__tabs {
+		display: block;
+		overflow-x: auto;
+	}
+}

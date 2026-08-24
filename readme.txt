@@ -5,7 +5,7 @@ Tags: news, seo, schema, google-news, editorial
 Requires at least: 6.7
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.6.22
+Stable tag: 1.6.25
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -17,14 +17,29 @@ Infy News OS Core powers the Infy News OS theme: NewsArticle schema, news sitema
 
 Re-uploading this ZIP over an existing install replaces the same folder (`infy-news-os-core`) and keeps settings, posts, and subscribers. Do not rename the folder inside the ZIP.
 
+Production sites receive plugin updates from GitHub ([infatoz/infy-news-os-core](https://github.com/infatoz/infy-news-os-core)). After this version is installed once, use Dashboard → Updates and optionally Enable auto-updates. Push a Version bump to `main`, or publish a GitHub Release whose tag matches the plugin Version (for example `1.6.23`).
+
 == Installation ==
 
 1. Plugins → Add Plugin → Upload Plugin → choose `infy-news-os-core-1.6.9.zip`.
 2. If WordPress reports the plugin is already installed, choose **Replace current with uploaded**.
 3. Activate Infy News OS Core (it stays active after a replace if it was already active).
 4. Install and activate the Infy News OS theme.
+5. The setup wizard opens after activation. Install AMP and Web Stories, then pick a site look.
 
 == Changelog ==
+
+= 1.6.25 =
+* Admin dashboard with stack health, stats, and grouped navigation.
+* Homepage builder: per-block spacing, background, device visibility, author/offset, CTA and video blocks, duplicate.
+* Customizer split into Global, Header, Footer, and Blog panels (Astra-style) with container, type scale, breadcrumbs, and scroll to top.
+
+= 1.6.24 =
+* Setup wizard after activation: required plugins, site look, and news essentials.
+* Plugin row and Infy News OS menu shortcuts for the wizard, required plugins, and Site look.
+
+= 1.6.23 =
+* WordPress updates are fetched from the public GitHub repo instead of infatoz.com.
 
 = 1.6.22 =
 * Five Customizer site looks: Editorial, Broadsheet, Magazine, Digital, and News app (hybrid mobile-app chrome).

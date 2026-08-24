@@ -12,18 +12,60 @@
 defined( 'ABSPATH' ) || exit;
 
 $permalink_structure = get_option( 'permalink_structure' );
+$groups              = class_exists( 'INOS_Admin' ) ? INOS_Admin::tab_groups() : array();
+$look_url            = add_query_arg(
+	array(
+		'autofocus[section]' => 'inos_theme_look',
+		'url'                => home_url( '/' ),
+	),
+	admin_url( 'customize.php' )
+);
 ?>
-<div class="wrap inos-wrap">
-	<h1><?php esc_html_e( 'Infy News OS', 'infy-news-os-core' ); ?></h1>
-	<p class="description"><?php esc_html_e( 'News publisher settings for Google Search, News, Discover, and Top Stories.', 'infy-news-os-core' ); ?></p>
+<div class="wrap inos-wrap inos-app">
+	<header class="inos-app__head">
+		<div>
+			<h1><?php esc_html_e( 'Infy News OS', 'infy-news-os-core' ); ?></h1>
+			<p class="description">
+				<?php
+				echo esc_html(
+					sprintf(
+						/* translators: %s: plugin version */
+						__( 'Newsroom control panel · %s', 'infy-news-os-core' ),
+						INOS_CORE_VERSION
+					)
+				);
+				?>
+			</p>
+		</div>
+		<p class="inos-app__head-actions">
+			<?php if ( class_exists( 'INOS_Setup' ) ) : ?>
+				<a class="button" href="<?php echo esc_url( INOS_Setup::url( 'welcome' ) ); ?>"><?php esc_html_e( 'Setup wizard', 'infy-news-os-core' ); ?></a>
+			<?php endif; ?>
+			<a class="button" href="<?php echo esc_url( $look_url ); ?>"><?php esc_html_e( 'Customize', 'infy-news-os-core' ); ?></a>
+			<a class="button" href="<?php echo esc_url( home_url( '/' ) ); ?>" target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'View site', 'infy-news-os-core' ); ?></a>
+		</p>
+	</header>
 
-	<nav class="nav-tab-wrapper">
+	<div class="inos-app__layout">
+		<nav class="inos-app__nav" aria-label="<?php esc_attr_e( 'Infy News OS', 'infy-news-os-core' ); ?>">
+			<?php foreach ( $groups as $group ) : ?>
+				<p class="inos-app__nav-label"><?php echo esc_html( $group['label'] ); ?></p>
+				<?php foreach ( $group['tabs'] as $id ) : ?>
+					<?php if ( empty( $tabs[ $id ] ) ) { continue; } ?>
+					<a class="inos-app__nav-link<?php echo $tab === $id ? ' is-active' : ''; ?>" href="<?php echo esc_url( admin_url( 'admin.php?page=inos-settings&tab=' . $id ) ); ?>"><?php echo esc_html( $tabs[ $id ] ); ?></a>
+				<?php endforeach; ?>
+			<?php endforeach; ?>
+		</nav>
+		<div class="inos-app__main">
+	<nav class="nav-tab-wrapper inos-app__tabs">
 		<?php foreach ( $tabs as $id => $label ) : ?>
 			<a class="nav-tab <?php echo $tab === $id ? 'nav-tab-active' : ''; ?>" href="<?php echo esc_url( admin_url( 'admin.php?page=inos-settings&tab=' . $id ) ); ?>"><?php echo esc_html( $label ); ?></a>
 		<?php endforeach; ?>
 	</nav>
 
-	<?php if ( 'demo' === $tab ) : ?>
+	<?php if ( 'dashboard' === $tab ) : ?>
+		<?php include INOS_CORE_PATH . 'admin/views/dashboard-page.php'; ?>
+	<?php elseif ( 'demo' === $tab ) : ?>
 		<?php include INOS_CORE_PATH . 'admin/views/demo-page.php'; ?>
 	<?php else : ?>
 	<form method="post" action="<?php echo esc_url( admin_url( 'admin.php?page=inos-settings&tab=' . $tab ) ); ?>">
@@ -54,6 +96,59 @@ $permalink_structure = get_option( 'permalink_structure' );
 		<?php elseif ( 'drawer' === $tab ) : ?>
 			<?php include INOS_CORE_PATH . 'admin/views/drawer-page.php'; ?>
 		<?php else : ?>
+		<?php if ( 'general' === $tab ) : ?>
+			<div class="inos-quickstart">
+				<div class="inos-quickstart__intro">
+					<h2><?php esc_html_e( 'Quick start', 'infy-news-os-core' ); ?></h2>
+					<p><?php esc_html_e( 'Open the setup wizard, install companions Core expects, or jump to the look and homepage tools.', 'infy-news-os-core' ); ?></p>
+				</div>
+				<p class="inos-quickstart__links">
+					<?php if ( class_exists( 'INOS_Setup' ) ) : ?>
+						<a class="button button-primary" href="<?php echo esc_url( INOS_Setup::url( 'welcome' ) ); ?>"><?php esc_html_e( 'Setup wizard', 'infy-news-os-core' ); ?></a>
+						<a class="button" href="<?php echo esc_url( INOS_Setup::url( 'plugins' ) ); ?>"><?php esc_html_e( 'Required plugins', 'infy-news-os-core' ); ?></a>
+					<?php endif; ?>
+					<a class="button" href="<?php echo esc_url( admin_url( 'admin.php?page=inos-settings&tab=builder' ) ); ?>"><?php esc_html_e( 'Homepage builder', 'infy-news-os-core' ); ?></a>
+					<?php
+					$look_url = add_query_arg(
+						array(
+							'autofocus[section]' => 'inos_theme_look',
+							'url'                => home_url( '/' ),
+						),
+						admin_url( 'customize.php' )
+					);
+					?>
+					<a class="button" href="<?php echo esc_url( $look_url ); ?>"><?php esc_html_e( 'Site look', 'infy-news-os-core' ); ?></a>
+					<a class="button" href="<?php echo esc_url( admin_url( 'admin.php?page=inos-settings&tab=amp-stories' ) ); ?>"><?php esc_html_e( 'AMP & Stories', 'infy-news-os-core' ); ?></a>
+					<a class="button" href="<?php echo esc_url( admin_url( 'admin.php?page=inos-settings&tab=demo' ) ); ?>"><?php esc_html_e( 'Import demo', 'infy-news-os-core' ); ?></a>
+				</p>
+				<?php if ( class_exists( 'INOS_Setup' ) ) : ?>
+					<ul class="inos-quickstart__status">
+						<?php foreach ( INOS_Setup::companions() as $raw ) : ?>
+							<?php
+							if ( empty( $raw['required'] ) ) {
+								continue;
+							}
+							$row   = INOS_Setup::companion_status( $raw );
+							$state = isset( $row['state'] ) ? $row['state'] : 'missing';
+							$pill  = 'active' === $state ? 'is-ok' : ( 'installed' === $state ? 'is-info' : 'is-warn' );
+							$labels = array(
+								'active'    => __( 'Active', 'infy-news-os-core' ),
+								'installed' => __( 'Installed', 'infy-news-os-core' ),
+								'missing'   => __( 'Missing', 'infy-news-os-core' ),
+							);
+							?>
+							<li>
+								<span class="inos-setup__pill <?php echo esc_attr( $pill ); ?>"><?php echo esc_html( isset( $labels[ $state ] ) ? $labels[ $state ] : $state ); ?></span>
+								<strong><?php echo esc_html( $row['name'] ); ?></strong>
+								<?php if ( 'active' !== $state && ! empty( $row['action'] ) ) : ?>
+									<span class="inos-quickstart__action"><?php echo $row['action']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
+								<?php endif; ?>
+							</li>
+						<?php endforeach; ?>
+					</ul>
+				<?php endif; ?>
+			</div>
+		<?php endif; ?>
 		<table class="form-table" role="presentation">
 			<?php if ( 'general' === $tab ) : ?>
 				<tr>
@@ -819,4 +914,6 @@ $permalink_structure = get_option( 'permalink_structure' );
 		<?php submit_button(); ?>
 	</form>
 	<?php endif; ?>
+		</div>
+	</div>
 </div>

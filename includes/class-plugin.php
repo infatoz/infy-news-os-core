@@ -54,11 +54,13 @@ class INOS_Plugin {
 		INOS_Trending::init();
 		INOS_Performance::init();
 		INOS_Admin::init();
+		INOS_Setup::init();
 		INOS_Metabox::init();
 		INOS_Presets::init();
 		INOS_Customizer::init();
 		INOS_Archives::init();
 		INOS_Demo::init();
+		INOS_GitHub_Updater::init();
 		INOS_AMP::init();
 		INOS_Web_Stories::init();
 

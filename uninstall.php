@@ -14,6 +14,7 @@ delete_option( 'inos_pages_seeded' );
 delete_option( 'inos_article_types_seeded' );
 delete_option( 'inos_demo_state' );
 delete_option( 'inos_sitemap_rewrite' );
+delete_option( 'inos_setup_complete' );
 
 global $wpdb;
 $table = $wpdb->prefix . 'inos_subscribers';

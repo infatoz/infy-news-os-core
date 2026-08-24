@@ -97,6 +97,12 @@
 				html += fieldRow('Ad slot', '<select data-key="ad_slot">' + optionsHtml(cfg.slots, mod.ad_slot || 'between_cards') + '</select>');
 			} else if (key === 'html') {
 				html += fieldRow('HTML', '<textarea data-key="html" rows="5">' + escapeHtml(mod.html || '') + '</textarea>');
+			} else if (key === 'url') {
+				html += fieldRow('URL', '<input type="url" data-key="url" value="' + escapeAttr(mod.url || '') + '" placeholder="https://" />');
+			} else if (key === 'author') {
+				html += fieldRow('Author', '<select data-key="author">' + optionsHtml(cfg.authors || {0: 'All authors'}, mod.author || 0) + '</select>');
+			} else if (key === 'offset') {
+				html += fieldRow('Offset', '<input type="number" min="0" max="50" data-key="offset" value="' + escapeAttr(mod.offset || 0) + '" />');
 			} else if (key === 'menu') {
 				html += fieldRow('WordPress menu', '<select data-key="menu">' + optionsHtml(cfg.menus, mod.menu || 0) + '</select>');
 			} else if (key === 'unique') {
@@ -113,6 +119,14 @@
 				html += '<p class="inos-builder__field">' + checkbox('dark', !!parseInt(mod.dark, 10), 'Dark band') + '</p>';
 			}
 		});
+		html += '<div class="inos-builder__group"><p class="inos-builder__group-title">Design</p>';
+		html += fieldRow('Spacing', '<select data-key="pad_y">' + optionsHtml({ '': 'Default', none: 'None', sm: 'Small', md: 'Medium', lg: 'Large' }, mod.pad_y || '') + '</select>');
+		html += fieldRow('Background', '<select data-key="bg">' + optionsHtml({ '': 'Default', paper: 'Paper', card: 'Card', muted: 'Muted', accent: 'Accent' }, mod.bg || '') + '</select>');
+		html += fieldRow('Title style', '<select data-key="title_style">' + optionsHtml({ '': 'Inherit site look', bar: 'Bar', underline: 'Underline', boxed: 'Boxed', pill: 'Pill', minimal: 'Minimal' }, mod.title_style || '') + '</select>');
+		html += fieldRow('CSS class', '<input type="text" data-key="css_class" value="' + escapeAttr(mod.css_class || '') + '" placeholder="my-block" />');
+		html += '<p class="inos-builder__field">' + checkbox('hide_mobile', !!parseInt(mod.hide_mobile, 10), 'Hide on mobile') + '</p>';
+		html += '<p class="inos-builder__field">' + checkbox('hide_desktop', !!parseInt(mod.hide_desktop, 10), 'Hide on desktop') + '</p>';
+		html += '</div>';
 		return html;
 	}
 
@@ -128,6 +142,7 @@
 				'<span class="inos-builder__hint">' + escapeHtml(mod.title || '') + '</span>' +
 				'<label class="inos-builder__on"><input type="checkbox" data-key="enabled"' + (parseInt(mod.enabled, 10) ? ' checked' : '') + ' /> On</label>' +
 				'<button type="button" class="button-link inos-builder__toggle">Edit</button>' +
+				'<button type="button" class="button-link inos-builder__duplicate">Duplicate</button>' +
 				'<button type="button" class="button-link inos-builder__remove">Remove</button>' +
 			'</div>' +
 			'<div class="inos-builder__body" hidden>' + renderFields(mod) + '</div>';
@@ -142,7 +157,7 @@
 			var key = el.getAttribute('data-key');
 			if (el.type === 'checkbox') {
 				current[key] = el.checked ? 1 : 0;
-			} else if (key === 'category' || key === 'tag' || key === 'count' || key === 'menu') {
+			} else if (key === 'category' || key === 'tag' || key === 'count' || key === 'menu' || key === 'author' || key === 'offset') {
 				current[key] = parseInt(el.value, 10) || 0;
 			} else {
 				current[key] = el.value;
@@ -220,6 +235,12 @@
 		}
 		if (event.target.classList.contains('inos-builder__remove')) {
 			item.remove();
+			sync();
+		}
+		if (event.target.classList.contains('inos-builder__duplicate')) {
+			var copy = readModule(item);
+			copy.id = uid();
+			item.parentNode.insertBefore(renderModule(copy), item.nextSibling);
 			sync();
 		}
 	});
