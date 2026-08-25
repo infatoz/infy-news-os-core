@@ -36,6 +36,10 @@ class INOS_Push {
 	 * Root-scoped service worker URL (required by FCM).
 	 */
 	public static function register_rewrites() {
+		global $wp_rewrite;
+		if ( ! $wp_rewrite instanceof WP_Rewrite ) {
+			return;
+		}
 		add_rewrite_rule( '^firebase-messaging-sw\.js$', 'index.php?inos_fcm_sw=1', 'top' );
 	}
 
