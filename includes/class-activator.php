@@ -7,6 +7,10 @@
 
 defined( 'ABSPATH' ) || exit;
 
+if ( class_exists( 'INOS_Activator' ) ) {
+	return;
+}
+
 /**
  * Plugin lifecycle.
  *
@@ -20,9 +24,11 @@ class INOS_Activator {
 	 * Run on activation.
 	 */
 	public static function activate() {
-		self::install( true );
-		if ( class_exists( 'INOS_Setup' ) ) {
-			INOS_Setup::schedule_redirect();
+		try {
+			update_option( 'inos_flush_rewrites', '1' );
+			update_option( 'inos_core_version', INOS_CORE_VERSION );
+		} catch ( \Throwable $e ) {
+			error_log( 'INOS activate: ' . $e->getMessage() . ' @ ' . $e->getFile() . ':' . $e->getLine() );
 		}
 	}
 

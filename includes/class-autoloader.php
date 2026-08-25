@@ -80,8 +80,13 @@ class INOS_Autoloader {
 		}
 
 		$file = INOS_CORE_PATH . self::$map[ $class ];
-		if ( is_readable( $file ) ) {
+		if ( ! is_readable( $file ) ) {
+			return;
+		}
+		try {
 			require_once $file;
+		} catch ( \Throwable $e ) {
+			error_log( 'INOS autoload ' . $class . ': ' . $e->getMessage() . ' @ ' . $e->getFile() . ':' . $e->getLine() );
 		}
 	}
 }
