@@ -79,6 +79,7 @@ $look_url            = add_query_arg(
 			'editorial'   => array( 'enable_custom_statuses', 'show_reading_time', 'show_view_count', 'show_progress_bar', 'sticky_header_desktop', 'sticky_header_mobile', 'sticky_share', 'article_reader_tools', 'mid_article_also_read' ),
 			'ads'         => array( 'ad_header_enable', 'ad_below_ticker_enable', 'ad_in_article_enable', 'ad_sidebar_enable', 'ad_between_cards_enable', 'ad_sticky_mobile_enable', 'ad_footer_enable' ),
 			'newsletter'  => array( 'enable_newsletter', 'newsletter_store_local' ),
+			'push'        => array( 'enable_web_push' ),
 			'performance' => array( 'disable_emojis', 'disable_embeds' ),
 			'images'      => array( 'enable_lazy_load', 'skip_lcp_lazy', 'preload_lcp_image', 'lazy_iframes', 'image_webp', 'auto_image_alt', 'enable_image_sitemap', 'schema_multi_aspect', 'keep_original_images' ),
 			'homepage'    => array( 'show_also_read', 'related_load_more', 'show_hero', 'show_latest', 'show_trending', 'show_home_newsletter', 'show_home_ads', 'show_home_web_stories', 'show_breaking_ticker', 'show_subscribe_cta' ),
@@ -776,6 +777,91 @@ $look_url            = add_query_arg(
 				<tr>
 					<th><?php esc_html_e( 'Local store', 'infy-news-os-core' ); ?></th>
 					<td><label><input type="checkbox" name="inos[newsletter_store_local]" value="1" <?php checked( $s['newsletter_store_local'], 1 ); ?> /> <?php esc_html_e( 'Save subscribers in WordPress (CSV export on Subscribers page)', 'infy-news-os-core' ); ?></label></td>
+				</tr>
+			<?php elseif ( 'push' === $tab ) : ?>
+				<?php
+				$push_test = isset( $_GET['inos_push_test'] ) ? sanitize_key( wp_unslash( $_GET['inos_push_test'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+				$has_sa    = ! empty( $s['firebase_service_account'] );
+				$subs      = class_exists( 'INOS_Push' ) ? INOS_Push::token_count() : 0;
+				?>
+				<?php if ( 'ok' === $push_test ) : ?>
+					<tr><td colspan="2"><div class="notice notice-success inline"><p><?php esc_html_e( 'Test notification sent to subscribed browsers.', 'infy-news-os-core' ); ?></p></div></td></tr>
+				<?php elseif ( 'fail' === $push_test ) : ?>
+					<tr><td colspan="2"><div class="notice notice-error inline"><p><?php esc_html_e( 'Test send failed. Check the Firebase project ID, VAPID key, and service account JSON.', 'infy-news-os-core' ); ?></p></div></td></tr>
+				<?php elseif ( 'empty' === $push_test ) : ?>
+					<tr><td colspan="2"><div class="notice notice-warning inline"><p><?php esc_html_e( 'Publish at least one article before sending a test.', 'infy-news-os-core' ); ?></p></div></td></tr>
+				<?php endif; ?>
+				<tr>
+					<th><?php esc_html_e( 'Web push', 'infy-news-os-core' ); ?></th>
+					<td>
+						<label><input type="checkbox" name="inos[enable_web_push]" value="1" <?php checked( ! empty( $s['enable_web_push'] ), true ); ?> /> <?php esc_html_e( 'Ask visitors for notification permission and send a push when an article is published', 'infy-news-os-core' ); ?></label>
+						<p class="description">
+							<?php
+							printf(
+								/* translators: %d: subscriber count */
+								esc_html__( 'Browsers currently subscribed: %d. HTTPS is required (except localhost). AMP pages never load this script.', 'infy-news-os-core' ),
+								(int) $subs
+							);
+							?>
+						</p>
+					</td>
+				</tr>
+				<tr>
+					<th><label for="inos_firebase_api_key"><?php esc_html_e( 'Firebase API key', 'infy-news-os-core' ); ?></label></th>
+					<td><input type="text" class="regular-text" id="inos_firebase_api_key" name="inos[firebase_api_key]" value="<?php echo esc_attr( $s['firebase_api_key'] ); ?>" autocomplete="off" /></td>
+				</tr>
+				<tr>
+					<th><label for="inos_firebase_auth_domain"><?php esc_html_e( 'Auth domain', 'infy-news-os-core' ); ?></label></th>
+					<td><input type="text" class="regular-text" id="inos_firebase_auth_domain" name="inos[firebase_auth_domain]" value="<?php echo esc_attr( $s['firebase_auth_domain'] ); ?>" placeholder="your-project.firebaseapp.com" /></td>
+				</tr>
+				<tr>
+					<th><label for="inos_firebase_project_id"><?php esc_html_e( 'Project ID', 'infy-news-os-core' ); ?></label></th>
+					<td><input type="text" class="regular-text" id="inos_firebase_project_id" name="inos[firebase_project_id]" value="<?php echo esc_attr( $s['firebase_project_id'] ); ?>" /></td>
+				</tr>
+				<tr>
+					<th><label for="inos_firebase_storage_bucket"><?php esc_html_e( 'Storage bucket', 'infy-news-os-core' ); ?></label></th>
+					<td><input type="text" class="regular-text" id="inos_firebase_storage_bucket" name="inos[firebase_storage_bucket]" value="<?php echo esc_attr( $s['firebase_storage_bucket'] ); ?>" /></td>
+				</tr>
+				<tr>
+					<th><label for="inos_firebase_messaging_sender_id"><?php esc_html_e( 'Messaging sender ID', 'infy-news-os-core' ); ?></label></th>
+					<td><input type="text" class="regular-text" id="inos_firebase_messaging_sender_id" name="inos[firebase_messaging_sender_id]" value="<?php echo esc_attr( $s['firebase_messaging_sender_id'] ); ?>" /></td>
+				</tr>
+				<tr>
+					<th><label for="inos_firebase_app_id"><?php esc_html_e( 'App ID', 'infy-news-os-core' ); ?></label></th>
+					<td><input type="text" class="regular-text" id="inos_firebase_app_id" name="inos[firebase_app_id]" value="<?php echo esc_attr( $s['firebase_app_id'] ); ?>" placeholder="1:...:web:..." /></td>
+				</tr>
+				<tr>
+					<th><label for="inos_firebase_vapid_key"><?php esc_html_e( 'Web Push certificate (VAPID key)', 'infy-news-os-core' ); ?></label></th>
+					<td>
+						<input type="text" class="large-text" id="inos_firebase_vapid_key" name="inos[firebase_vapid_key]" value="<?php echo esc_attr( $s['firebase_vapid_key'] ); ?>" autocomplete="off" />
+						<p class="description"><?php esc_html_e( 'Firebase console → Project settings → Cloud Messaging → Web Push certificates → Key pair.', 'infy-news-os-core' ); ?></p>
+					</td>
+				</tr>
+				<tr>
+					<th><label for="inos_firebase_service_account"><?php esc_html_e( 'Service account JSON', 'infy-news-os-core' ); ?></label></th>
+					<td>
+						<textarea class="large-text code" rows="6" id="inos_firebase_service_account" name="inos[firebase_service_account]" placeholder="<?php echo $has_sa ? esc_attr__( 'Saved. Paste a new JSON file to replace it.', 'infy-news-os-core' ) : esc_attr__( '{ "type": "service_account", ... }', 'infy-news-os-core' ); ?>"></textarea>
+						<p class="description">
+							<?php
+							echo $has_sa ? esc_html__( 'A service account is already stored. Leave this empty to keep it.', 'infy-news-os-core' ) . ' ' : '';
+							esc_html_e( 'Firebase console → Project settings → Service accounts → Generate new private key. Used only on the server to send messages.', 'infy-news-os-core' );
+							?>
+						</p>
+					</td>
+				</tr>
+				<tr>
+					<th><label for="inos_push_prompt_delay"><?php esc_html_e( 'Prompt delay (seconds)', 'infy-news-os-core' ); ?></label></th>
+					<td><input type="number" min="2" max="60" id="inos_push_prompt_delay" name="inos[push_prompt_delay]" value="<?php echo esc_attr( (string) ( isset( $s['push_prompt_delay'] ) ? $s['push_prompt_delay'] : 8 ) ); ?>" /></td>
+				</tr>
+				<tr>
+					<th><?php esc_html_e( 'Test', 'infy-news-os-core' ); ?></th>
+					<td>
+						<?php
+						$test_url = wp_nonce_url( admin_url( 'admin-post.php?action=inos_push_test' ), 'inos_push_test' );
+						?>
+						<a class="button" href="<?php echo esc_url( $test_url ); ?>"><?php esc_html_e( 'Send a test using the latest article', 'infy-news-os-core' ); ?></a>
+						<p class="description"><?php esc_html_e( 'Save settings first. Then allow notifications on the live site and click test. The notice uses the site logo, featured image, headline, short description, and a Read more button.', 'infy-news-os-core' ); ?></p>
+					</td>
 				</tr>
 			<?php elseif ( 'performance' === $tab ) : ?>
 				<tr>

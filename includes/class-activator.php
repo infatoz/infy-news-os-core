@@ -37,6 +37,10 @@ class INOS_Activator {
 		}
 
 		INOS_Newsletter::create_table();
+		if ( class_exists( 'INOS_Push' ) ) {
+			INOS_Push::create_table();
+			INOS_Push::register_rewrites();
+		}
 
 		if ( $is_activation ) {
 			INOS_Taxonomies::register();

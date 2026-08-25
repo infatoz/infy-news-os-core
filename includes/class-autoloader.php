@@ -58,6 +58,7 @@ class INOS_Autoloader {
 		'INOS_GitHub_Updater' => 'includes/class-github-updater.php',
 		'INOS_AMP'          => 'includes/integrations/class-amp.php',
 		'INOS_Archives'     => 'includes/class-archives.php',
+		'INOS_Push'         => 'includes/push/class-push.php',
 		'INOS_Web_Stories'  => 'includes/integrations/class-web-stories.php',
 	);
 

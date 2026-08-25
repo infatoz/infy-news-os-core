@@ -373,6 +373,7 @@ class INOS_Admin {
 			'drawer'      => __( 'Mobile menu', 'infy-news-os-core' ),
 			'ads'         => __( 'Ads', 'infy-news-os-core' ),
 			'newsletter'  => __( 'Newsletter', 'infy-news-os-core' ),
+			'push'        => __( 'Web push', 'infy-news-os-core' ),
 			'performance' => __( 'Performance', 'infy-news-os-core' ),
 			'images'      => __( 'Images', 'infy-news-os-core' ),
 			'amp-stories' => __( 'AMP & Stories', 'infy-news-os-core' ),
@@ -405,7 +406,7 @@ class INOS_Admin {
 			),
 			'grow'     => array(
 				'label' => __( 'Grow', 'infy-news-os-core' ),
-				'tabs'  => array( 'ads', 'newsletter', 'amp-stories' ),
+				'tabs'  => array( 'ads', 'newsletter', 'push', 'amp-stories' ),
 			),
 			'speed'    => array(
 				'label' => __( 'Speed', 'infy-news-os-core' ),

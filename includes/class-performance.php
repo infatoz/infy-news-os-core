@@ -19,6 +19,7 @@ class INOS_Performance {
 		add_action( 'init', array( __CLASS__, 'maybe_disable_emojis' ), 20 );
 		add_action( 'init', array( __CLASS__, 'maybe_quiet_wvns' ), 0 );
 		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'dequeue_unused' ), 100 );
+		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'dequeue_amp_scripts' ), 9999 );
 		add_action( 'wp_footer', array( __CLASS__, 'maybe_disable_embeds' ), 1 );
 	}
 
@@ -87,5 +88,33 @@ class INOS_Performance {
 		header( 'Content-Type: text/plain; charset=UTF-8' );
 		header( 'Cache-Control: public, max-age=86400' );
 		exit;
+	}
+
+	/**
+	 * AMP forbids custom JS. Drop theme/plugin/Site Kit scripts from AMP documents.
+	 */
+	public static function dequeue_amp_scripts() {
+		if ( is_admin() || ! function_exists( 'inos_is_amp' ) || ! inos_is_amp() ) {
+			return;
+		}
+
+		global $wp_scripts;
+		if ( ! ( $wp_scripts instanceof WP_Scripts ) ) {
+			return;
+		}
+
+		foreach ( (array) $wp_scripts->queue as $handle ) {
+			if ( 0 === strpos( (string) $handle, 'amp-' ) ) {
+				continue;
+			}
+			$src = '';
+			if ( isset( $wp_scripts->registered[ $handle ] ) && ! empty( $wp_scripts->registered[ $handle ]->src ) ) {
+				$src = (string) $wp_scripts->registered[ $handle ]->src;
+			}
+			if ( $src && false !== strpos( $src, 'cdn.ampproject.org' ) ) {
+				continue;
+			}
+			wp_dequeue_script( $handle );
+		}
 	}
 }

@@ -1,0 +1,92 @@
+#inos-push-root {
+	position: relative;
+	z-index: 80;
+}
+
+.inos-push {
+	position: fixed;
+	right: 1.1rem;
+	bottom: calc(1.1rem + env(safe-area-inset-bottom, 0px));
+	display: flex;
+	gap: 0.85rem;
+	align-items: flex-start;
+	max-width: 22rem;
+	padding: 0.95rem 1rem;
+	background: var(--inos-card, #fffcf8);
+	color: var(--inos-ink, #121212);
+	border: 1px solid var(--inos-line, #e4e0d8);
+	box-shadow: 0 18px 40px rgba(15, 18, 24, 0.18);
+}
+
+.inos-push__logo {
+	width: 48px;
+	height: 48px;
+	object-fit: contain;
+	background: #fff;
+	flex: 0 0 auto;
+}
+
+.inos-push__title {
+	margin: 0;
+	font-family: var(--inos-sans, inherit);
+	font-size: 0.95rem;
+	font-weight: 800;
+	letter-spacing: -0.02em;
+}
+
+.inos-push__text {
+	margin: 0.25rem 0 0.7rem;
+	font-size: 0.82rem;
+	line-height: 1.4;
+	color: var(--inos-muted, #5a5854);
+}
+
+.inos-push__actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.4rem;
+	margin: 0;
+}
+
+.inos-push__allow,
+.inos-push__dismiss {
+	font: inherit;
+	font-size: 0.78rem;
+	font-weight: 700;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+	border: 0;
+	cursor: pointer;
+	padding: 0.45rem 0.75rem;
+}
+
+.inos-push__allow {
+	background: var(--inos-accent, #0e7490);
+	color: #fff;
+}
+
+.inos-push__dismiss {
+	background: transparent;
+	color: var(--inos-ink, #121212);
+	border: 1px solid var(--inos-line, #e4e0d8);
+}
+
+html.inos-dark .inos-push {
+	background: var(--inos-card, #16181d);
+	color: var(--inos-ink, #eeeae3);
+	border-color: var(--inos-line, #2a2c32);
+}
+
+html.inos-dark .inos-push__dismiss {
+	color: var(--inos-ink, #eeeae3);
+	border-color: var(--inos-line, #2a2c32);
+}
+
+@media (max-width: 640px) {
+	.inos-push {
+		left: 0.7rem;
+		right: 0.7rem;
+		max-width: none;
+		bottom: calc(0.7rem + env(safe-area-inset-bottom, 0px));
+	}
+}

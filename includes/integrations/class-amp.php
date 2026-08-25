@@ -27,6 +27,72 @@ class INOS_AMP {
 	}
 
 	/**
+	 * Wrap AMP responses last so later plugins (Site Kit GTG) cannot re-inject JS.
+	 *
+	 * Must run on plugins_loaded before Site Kit starts its own buffer.
+	 */
+	public static function start_custom_js_guard() {
+		if ( is_admin() || wp_doing_ajax() || wp_doing_cron() ) {
+			return;
+		}
+		if ( ! self::is_amp_url() ) {
+			return;
+		}
+		if ( ! defined( 'LITESPEED_NO_OPTM' ) ) {
+			define( 'LITESPEED_NO_OPTM', true );
+		}
+		if ( defined( 'INOS_AMP_JS_GUARD' ) ) {
+			return;
+		}
+		define( 'INOS_AMP_JS_GUARD', true );
+		ob_start( array( __CLASS__, 'strip_custom_javascript' ) );
+	}
+
+	/**
+	 * Drop non-AMP <script> tags and HTML event handlers (onload, etc.).
+	 *
+	 * Site Kit Google tag gateway prepends google_tags_first_party / /wvns/
+	 * scripts after the AMP plugin sanitizer. Those are DISALLOWED_SCRIPT_TAG.
+	 *
+	 * @param string $html Buffered HTML.
+	 * @return string
+	 */
+	public static function strip_custom_javascript( $html ) {
+		if ( ! is_string( $html ) || '' === $html || false === stripos( $html, '<script' ) ) {
+			return $html;
+		}
+
+		$html = preg_replace_callback(
+			'#<script\b([^>]*)>(.*?)</script>#is',
+			static function ( $m ) {
+				$attrs = $m[1];
+				if ( preg_match( '/type\s*=\s*([\'"])application\/(?:ld\+)?json\1/i', $attrs ) ) {
+					return $m[0];
+				}
+				if ( preg_match( '/template\s*=\s*([\'"])amp-mustache\1/i', $attrs ) ) {
+					return $m[0];
+				}
+				if ( preg_match( '/target\s*=\s*([\'"])amp-script\1/i', $attrs ) ) {
+					return $m[0];
+				}
+				if ( false !== stripos( $attrs, 'cdn.ampproject.org' ) ) {
+					return $m[0];
+				}
+				return '';
+			},
+			$html
+		);
+
+		if ( ! is_string( $html ) ) {
+			return '';
+		}
+
+		// Keep AMP's on="tap:..." ; strip onload/onclick/onerror.
+		$stripped = preg_replace( '/\s+on[a-z]+\s*=\s*(?:"[^"]*"|\'[^\']*\')/i', '', $html );
+		return is_string( $stripped ) ? $stripped : $html;
+	}
+
+	/**
 	 * Transitional + /amp/ path for new AMP installs.
 	 *
 	 * Canonical URLs stay the default theme. AMP is only served when the URL
@@ -98,7 +164,32 @@ class INOS_AMP {
 	 * @return bool
 	 */
 	public static function is_request() {
-		return function_exists( 'amp_is_request' ) && amp_is_request();
+		if ( function_exists( 'amp_is_request' ) && amp_is_request() ) {
+			return true;
+		}
+		return self::is_amp_url();
+	}
+
+	/**
+	 * Detect an AMP URL before amp_is_request() is ready (head/enqueue).
+	 *
+	 * @return bool
+	 */
+	public static function is_amp_url() {
+		if ( isset( $_GET['amp'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			$amp = strtolower( (string) wp_unslash( $_GET['amp'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			if ( '' === $amp || '1' === $amp || 'true' === $amp ) {
+				return true;
+			}
+		}
+		if ( empty( $_SERVER['REQUEST_URI'] ) ) {
+			return false;
+		}
+		$path = wp_parse_url( (string) wp_unslash( $_SERVER['REQUEST_URI'] ), PHP_URL_PATH );
+		if ( ! is_string( $path ) || '' === $path ) {
+			return false;
+		}
+		return (bool) preg_match( '#/amp/?$#', $path );
 	}
 
 	/**

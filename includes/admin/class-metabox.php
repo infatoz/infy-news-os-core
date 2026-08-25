@@ -175,6 +175,22 @@ class INOS_Metabox {
 					<option value="noindex,nofollow" <?php selected( $robots, 'noindex,nofollow' ); ?>><?php esc_html_e( 'noindex, nofollow', 'infy-news-os-core' ); ?></option>
 				</select>
 			</p>
+			<?php if ( class_exists( 'INOS_Push' ) && INOS_Push::is_enabled() ) : ?>
+				<?php
+				$push_sent    = get_post_meta( $post->ID, INOS_Push::META_SENT, true );
+				$push_default = ( 'publish' !== $post->post_status && ! $push_sent );
+				?>
+				<p>
+					<label>
+						<input type="checkbox" name="inos_send_push" value="1" <?php checked( $push_default ); ?> />
+						<?php
+						echo $push_sent
+							? esc_html__( 'Send web push again (subscribers already received this article)', 'infy-news-os-core' )
+							: esc_html__( 'Send web push when this article is published', 'infy-news-os-core' );
+						?>
+					</label>
+				</p>
+			<?php endif; ?>
 		</div>
 		<?php
 	}
@@ -234,6 +250,10 @@ class INOS_Metabox {
 		$checks = array( 'inos_breaking' => '_inos_breaking', 'inos_exclusive' => '_inos_exclusive', 'inos_sponsored' => '_inos_sponsored', 'inos_homepage_pin' => '_inos_homepage_pin', 'inos_trending_pin' => '_inos_trending_pin' );
 		foreach ( $checks as $field => $meta ) {
 			update_post_meta( $post_id, $meta, empty( $_POST[ $field ] ) ? '0' : '1' );
+		}
+
+		if ( class_exists( 'INOS_Push' ) ) {
+			update_post_meta( $post_id, '_inos_send_push', empty( $_POST['inos_send_push'] ) ? '0' : '1' );
 		}
 
 		if ( ! empty( $_POST['inos_breaking'] ) ) {
