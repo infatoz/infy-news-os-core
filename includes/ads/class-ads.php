@@ -35,6 +35,9 @@ class INOS_Ads {
 	 * ads.txt rewrite.
 	 */
 	public static function register_rewrites() {
+		if ( ! INOS_Activator::rewrites_ready() ) {
+			return;
+		}
 		add_rewrite_rule( '^ads\.txt$', 'index.php?inos_ads_txt=1', 'top' );
 	}
 
