@@ -460,18 +460,15 @@ function inos_get_breadcrumb_items() {
 			);
 		}
 	} elseif ( is_author() ) {
-		$items[] = array(
-			'name' => inos_label( 'authors' ),
-			'url'  => '',
-		);
-		$items[] = array(
-			'name' => get_the_author_meta( 'display_name', get_queried_object_id() ),
-			'url'  => get_author_posts_url( get_queried_object_id() ),
+		$author_id = get_queried_object_id();
+		$items[]   = array(
+			'name' => get_the_author_meta( 'display_name', $author_id ),
+			'url'  => get_author_posts_url( $author_id ),
 		);
 	} elseif ( is_search() ) {
 		$items[] = array(
 			'name' => inos_label( 'search_heading', array( get_search_query() ) ),
-			'url'  => '',
+			'url'  => get_search_link(),
 		);
 	} elseif ( is_home() && ! is_front_page() ) {
 		$page_id = (int) get_option( 'page_for_posts' );
@@ -486,14 +483,17 @@ function inos_get_breadcrumb_items() {
 			'url'  => $link ? $link : '',
 		);
 	} elseif ( is_year() || is_month() || is_day() ) {
+		$url = '';
+		if ( is_day() ) {
+			$url = get_day_link( get_query_var( 'year' ), get_query_var( 'monthnum' ), get_query_var( 'day' ) );
+		} elseif ( is_month() ) {
+			$url = get_month_link( get_query_var( 'year' ), get_query_var( 'monthnum' ) );
+		} else {
+			$url = get_year_link( get_query_var( 'year' ) );
+		}
 		$items[] = array(
 			'name' => wp_strip_all_tags( get_the_archive_title() ),
-			'url'  => '',
-		);
-	} elseif ( is_404() ) {
-		$items[] = array(
-			'name' => inos_label( 'page_not_found' ),
-			'url'  => '',
+			'url'  => $url,
 		);
 	} elseif ( is_singular() ) {
 		$items[] = array(

@@ -177,22 +177,44 @@ class INOS_SEO {
 	 * @return string
 	 */
 	public static function description() {
-		if ( is_singular( array( 'post', 'inos_live_blog', 'page' ) ) ) {
-			$post_id = get_the_ID();
-			$seo     = (string) get_post_meta( $post_id, '_inos_seo_description', true );
-			if ( $seo ) {
-				return $seo;
+		if ( is_front_page() ) {
+			$home = trim( (string) inos_get_option( 'homepage_description', '' ) );
+			if ( $home ) {
+				return $home;
 			}
-			$dek = function_exists( 'inos_get_dek' ) ? inos_get_dek( $post_id ) : '';
-			if ( $dek ) {
-				return wp_strip_all_tags( $dek );
+			$intro = (string) inos_get_option( 'home_intro', '' );
+			if ( $intro ) {
+				return wp_strip_all_tags( $intro );
 			}
-			return wp_strip_all_tags( get_the_excerpt( $post_id ) );
+			$tagline = get_bloginfo( 'description', 'display' );
+			if ( $tagline ) {
+				return wp_strip_all_tags( $tagline );
+			}
+			if ( is_singular( 'page' ) ) {
+				$page_desc = self::singular_description( get_the_ID() );
+				if ( $page_desc && strlen( $page_desc ) >= 50 ) {
+					return $page_desc;
+				}
+			}
+			$title = wp_strip_all_tags( wp_get_document_title() );
+			$site  = self::site_name();
+			if ( $title && 0 !== strcasecmp( $title, $site ) ) {
+				return $title;
+			}
+			return function_exists( 'inos_label' )
+				? inos_label( 'home_meta_desc', array( $site ) )
+				: sprintf(
+					/* translators: %s: publication name */
+					__( 'The latest news from %s.', 'infy-news-os-core' ),
+					$site
+				);
 		}
 
-		if ( is_front_page() ) {
-			$home = (string) inos_get_option( 'homepage_description', '' );
-			return $home ? $home : get_bloginfo( 'description' );
+		if ( is_singular( array( 'post', 'inos_live_blog', 'page' ) ) ) {
+			$singular = self::singular_description( get_the_ID() );
+			if ( $singular ) {
+				return $singular;
+			}
 		}
 
 		if ( is_home() ) {
@@ -276,6 +298,57 @@ class INOS_SEO {
 		}
 
 		return get_bloginfo( 'description' );
+	}
+
+	/**
+	 * Excerpt / SEO field / first paragraph for a single post or page.
+	 *
+	 * @param int $post_id Post ID.
+	 * @return string
+	 */
+	private static function singular_description( $post_id ) {
+		$post_id = absint( $post_id );
+		if ( ! $post_id ) {
+			return '';
+		}
+
+		$seo = (string) get_post_meta( $post_id, '_inos_seo_description', true );
+		if ( $seo ) {
+			return $seo;
+		}
+		$dek = function_exists( 'inos_get_dek' ) ? inos_get_dek( $post_id ) : '';
+		if ( $dek ) {
+			return wp_strip_all_tags( $dek );
+		}
+		$excerpt = wp_strip_all_tags( (string) get_the_excerpt( $post_id ) );
+		if ( $excerpt ) {
+			return $excerpt;
+		}
+		$content = wp_strip_all_tags( (string) get_post_field( 'post_content', $post_id ) );
+		$content = trim( preg_replace( '/\s+/u', ' ', $content ) );
+		if ( $content ) {
+			return $content;
+		}
+		return wp_strip_all_tags( get_the_title( $post_id ) );
+	}
+
+	/**
+	 * Plain meta description, about 160 characters.
+	 *
+	 * @param string $text Raw text.
+	 * @return string
+	 */
+	private static function meta_text( $text ) {
+		$text = trim( preg_replace( '/\s+/u', ' ', wp_strip_all_tags( (string) $text ) ) );
+		if ( '' === $text ) {
+			return '';
+		}
+		$len = function_exists( 'mb_strlen' ) ? mb_strlen( $text ) : strlen( $text );
+		if ( $len <= 160 ) {
+			return $text;
+		}
+		$cut = function_exists( 'mb_substr' ) ? mb_substr( $text, 0, 157 ) : substr( $text, 0, 157 );
+		return rtrim( $cut ) . '...';
 	}
 
 	/**
@@ -420,9 +493,12 @@ class INOS_SEO {
 	 * Extra head tags.
 	 */
 	public static function head() {
-		$desc = self::description();
+		$desc = self::meta_text( self::description() );
+		if ( ! $desc ) {
+			$desc = self::meta_text( self::site_name() );
+		}
 		if ( $desc ) {
-			echo '<meta name="description" content="' . esc_attr( wp_trim_words( $desc, 40, '' ) ) . '" />' . "\n";
+			echo '<meta name="description" content="' . esc_attr( $desc ) . '" />' . "\n";
 		}
 
 		$canonical = self::canonical();
@@ -487,7 +563,7 @@ class INOS_SEO {
 		echo '<meta property="og:type" content="' . esc_attr( $type ) . '" />' . "\n";
 		echo '<meta property="og:title" content="' . esc_attr( $title ) . '" />' . "\n";
 		if ( $desc ) {
-			echo '<meta property="og:description" content="' . esc_attr( wp_trim_words( $desc, 40, '' ) ) . '" />' . "\n";
+			echo '<meta property="og:description" content="' . esc_attr( self::meta_text( $desc ) ) . '" />' . "\n";
 		}
 		if ( $url ) {
 			echo '<meta property="og:url" content="' . esc_url( $url ) . '" />' . "\n";
@@ -557,7 +633,7 @@ class INOS_SEO {
 		echo '<meta name="twitter:card" content="' . esc_attr( $card ) . '" />' . "\n";
 		echo '<meta name="twitter:title" content="' . esc_attr( $title ) . '" />' . "\n";
 		if ( $desc ) {
-			echo '<meta name="twitter:description" content="' . esc_attr( wp_trim_words( $desc, 40, '' ) ) . '" />' . "\n";
+			echo '<meta name="twitter:description" content="' . esc_attr( self::meta_text( $desc ) ) . '" />' . "\n";
 		}
 		if ( $image ) {
 			echo '<meta name="twitter:image" content="' . esc_url( $image ) . '" />' . "\n";

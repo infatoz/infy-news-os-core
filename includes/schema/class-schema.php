@@ -488,17 +488,23 @@ class INOS_Schema {
 
 		$items    = array();
 		$last_url = home_url( '/' );
-		foreach ( $trail as $i => $crumb ) {
-			$node = array(
-				'@type'    => 'ListItem',
-				'position' => $i + 1,
-				'name'     => $crumb['name'],
-			);
-			if ( ! empty( $crumb['url'] ) ) {
-				$node['item'] = $crumb['url'];
-				$last_url     = $crumb['url'];
+		foreach ( $trail as $crumb ) {
+			$name = isset( $crumb['name'] ) ? trim( wp_strip_all_tags( (string) $crumb['name'] ) ) : '';
+			$url  = isset( $crumb['url'] ) ? esc_url_raw( (string) $crumb['url'] ) : '';
+			if ( '' === $name || '' === $url ) {
+				continue;
 			}
-			$items[] = $node;
+			$last_url = $url;
+			$items[]  = array(
+				'@type'    => 'ListItem',
+				'position' => count( $items ) + 1,
+				'name'     => $name,
+				'item'     => $url,
+			);
+		}
+
+		if ( count( $items ) < 2 ) {
+			return null;
 		}
 
 		return array(

@@ -475,6 +475,19 @@ class INOS_Images {
 			$html .= '<meta itemprop="url" content="' . esc_url( $url ) . '" />';
 			$html .= '<meta itemprop="contentUrl" content="' . esc_url( $url ) . '" />';
 		}
+		$rights = self::license_fields( $post_id, $thumb_id );
+		if ( ! empty( $rights['license'] ) ) {
+			$html .= '<link itemprop="license" href="' . esc_url( $rights['license'] ) . '" />';
+		}
+		if ( ! empty( $rights['acquireLicensePage'] ) ) {
+			$html .= '<link itemprop="acquireLicensePage" href="' . esc_url( $rights['acquireLicensePage'] ) . '" />';
+		}
+		if ( ! empty( $rights['copyrightNotice'] ) ) {
+			$html .= '<meta itemprop="copyrightNotice" content="' . esc_attr( $rights['copyrightNotice'] ) . '" />';
+		}
+		if ( ! empty( $rights['creator']['name'] ) ) {
+			$html .= '<meta itemprop="creator" content="' . esc_attr( $rights['creator']['name'] ) . '" />';
+		}
 		if ( $bits ) {
 			$html .= '<figcaption itemprop="caption">' . esc_html( implode( ' — ', $bits ) ) . '</figcaption>';
 		}
@@ -661,13 +674,14 @@ class INOS_Images {
 		$alt     = self::alt_for_attachment( $thumb_id );
 		$caption = wp_get_attachment_caption( $thumb_id );
 		$credit  = $post_id ? (string) get_post_meta( $post_id, '_inos_image_credit', true ) : '';
+		$rights  = self::license_fields( $post_id, $thumb_id );
 
 		$obj = array(
-			'@type'       => 'ImageObject',
-			'url'         => $src[0],
-			'contentUrl'  => $src[0],
-			'width'       => (int) $src[1],
-			'height'      => (int) $src[2],
+			'@type'      => 'ImageObject',
+			'url'        => $src[0],
+			'contentUrl' => $src[0],
+			'width'      => (int) $src[1],
+			'height'     => (int) $src[2],
 		);
 		if ( $alt ) {
 			$obj['name']        = $alt;
@@ -681,6 +695,11 @@ class INOS_Images {
 		if ( $credit ) {
 			$obj['creditText'] = $credit;
 		}
+		foreach ( $rights as $key => $value ) {
+			if ( '' !== $value && null !== $value ) {
+				$obj[ $key ] = $value;
+			}
+		}
 		$thumb = wp_get_attachment_image_url( $thumb_id, 'inos-thumb' );
 		if ( $thumb ) {
 			$obj['thumbnailUrl'] = $thumb;
@@ -689,6 +708,104 @@ class INOS_Images {
 			$obj['representativeOfPage'] = true;
 		}
 		return $obj;
+	}
+
+	/**
+	 * Image Search license metadata (Google Image rich results).
+	 *
+	 * @param int $post_id  Parent post.
+	 * @param int $thumb_id Attachment.
+	 * @return array<string, mixed>
+	 */
+	public static function license_fields( $post_id, $thumb_id = 0 ) {
+		$post_id  = absint( $post_id );
+		$thumb_id = absint( $thumb_id );
+		$credit   = $post_id ? trim( (string) get_post_meta( $post_id, '_inos_image_credit', true ) ) : '';
+		$org      = function_exists( 'inos_get_option' ) ? (string) inos_get_option( 'org_name', get_bloginfo( 'name' ) ) : get_bloginfo( 'name' );
+		$year     = $post_id ? get_post_time( 'Y', true, $post_id ) : gmdate( 'Y' );
+		if ( ! $year ) {
+			$year = gmdate( 'Y' );
+		}
+
+		$license = function_exists( 'inos_get_option' ) ? esc_url_raw( (string) inos_get_option( 'image_license_url', '' ) ) : '';
+		if ( ! $license && function_exists( 'inos_policy_page_url' ) ) {
+			$license = (string) inos_policy_page_url( 'editorial-policy' );
+		}
+		if ( ! $license && function_exists( 'inos_get_option' ) ) {
+			$license = esc_url_raw( (string) inos_get_option( 'contact_page_url', '' ) );
+		}
+		if ( ! $license && function_exists( 'inos_policy_page_url' ) ) {
+			$license = (string) inos_policy_page_url( 'contact' );
+		}
+		if ( ! $license ) {
+			$license = home_url( '/' );
+		}
+
+		$acquire = function_exists( 'inos_get_option' ) ? esc_url_raw( (string) inos_get_option( 'image_acquire_license_url', '' ) ) : '';
+		if ( ! $acquire && function_exists( 'inos_get_option' ) ) {
+			$acquire = esc_url_raw( (string) inos_get_option( 'contact_page_url', '' ) );
+		}
+		if ( ! $acquire && function_exists( 'inos_policy_page_url' ) ) {
+			$acquire = (string) inos_policy_page_url( 'contact' );
+		}
+		if ( ! $acquire ) {
+			$acquire = $license;
+		}
+
+		$notice = function_exists( 'inos_get_option' ) ? trim( (string) inos_get_option( 'image_copyright_notice', '' ) ) : '';
+		if ( ! $notice ) {
+			$notice = sprintf(
+				/* translators: 1: year, 2: publisher name */
+				__( '© %1$s %2$s. All rights reserved.', 'infy-news-os-core' ),
+				$year,
+				$org
+			);
+			if ( $credit ) {
+				$notice .= ' ' . $credit;
+			}
+		}
+
+		$creator = null;
+		if ( $credit ) {
+			$creator = array(
+				'@type' => 'Person',
+				'name'  => $credit,
+			);
+		} elseif ( $post_id ) {
+			$author_id = (int) get_post_field( 'post_author', $post_id );
+			$name      = $author_id ? get_the_author_meta( 'display_name', $author_id ) : '';
+			if ( $name ) {
+				$creator = array(
+					'@type' => 'Person',
+					'name'  => $name,
+					'url'   => get_author_posts_url( $author_id ),
+				);
+			}
+		}
+		if ( ! $creator && $org ) {
+			$creator = array(
+				'@type' => 'NewsMediaOrganization',
+				'name'  => $org,
+				'url'   => home_url( '/' ),
+			);
+		}
+
+		$out = array(
+			'license'             => $license,
+			'acquireLicensePage'  => $acquire,
+			'copyrightNotice'     => $notice,
+			'copyrightHolder'     => array(
+				'@type' => 'NewsMediaOrganization',
+				'name'  => $org,
+				'url'   => home_url( '/' ),
+			),
+		);
+		if ( $creator ) {
+			$out['creator'] = $creator;
+		}
+
+		unset( $thumb_id );
+		return $out;
 	}
 
 	/**

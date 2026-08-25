@@ -853,6 +853,24 @@ $look_url            = add_query_arg(
 					</td>
 				</tr>
 				<tr>
+					<th><?php esc_html_e( 'Image license (Search)', 'infy-news-os-core' ); ?></th>
+					<td>
+						<p>
+							<label for="inos_image_license_url"><?php esc_html_e( 'License page URL', 'infy-news-os-core' ); ?></label><br />
+							<input type="url" class="large-text" id="inos_image_license_url" name="inos[image_license_url]" value="<?php echo esc_attr( isset( $s['image_license_url'] ) ? $s['image_license_url'] : '' ); ?>" placeholder="https://" />
+						</p>
+						<p>
+							<label for="inos_image_acquire_license_url"><?php esc_html_e( 'Acquire license page URL', 'infy-news-os-core' ); ?></label><br />
+							<input type="url" class="large-text" id="inos_image_acquire_license_url" name="inos[image_acquire_license_url]" value="<?php echo esc_attr( isset( $s['image_acquire_license_url'] ) ? $s['image_acquire_license_url'] : '' ); ?>" placeholder="https://" />
+						</p>
+						<p>
+							<label for="inos_image_copyright_notice"><?php esc_html_e( 'Copyright notice', 'infy-news-os-core' ); ?></label><br />
+							<input type="text" class="large-text" id="inos_image_copyright_notice" name="inos[image_copyright_notice]" value="<?php echo esc_attr( isset( $s['image_copyright_notice'] ) ? $s['image_copyright_notice'] : '' ); ?>" />
+						</p>
+						<p class="description"><?php esc_html_e( 'Used in ImageObject schema for Google Image Search. Leave blank to use the editorial-policy page, the contact page, and “© year publication”.', 'infy-news-os-core' ); ?></p>
+					</td>
+				</tr>
+				<tr>
 					<th><?php esc_html_e( 'Image sitemap', 'infy-news-os-core' ); ?></th>
 					<td>
 						<label><input type="checkbox" name="inos[enable_image_sitemap]" value="1" <?php checked( ! empty( $s['enable_image_sitemap'] ), true ); ?> /> <?php esc_html_e( 'Image sitemap for Google Image Search (title + caption)', 'infy-news-os-core' ); ?></label>

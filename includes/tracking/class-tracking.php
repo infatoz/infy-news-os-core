@@ -186,8 +186,8 @@ class INOS_Tracking {
 			return;
 		}
 		$singular       = is_singular( array( 'post', 'inos_live_blog' ) );
-		$listing        = is_archive() || is_home() || is_search();
-		$show_preferred = inos_get_option( 'enable_preferred_source', 1 ) && ( $singular || $listing );
+		$listing        = ( is_archive() || is_home() || is_search() ) && ! is_front_page();
+		$show_preferred = inos_get_option( 'enable_preferred_source', 1 ) && $singular;
 
 		if ( $show_preferred ) {
 			wp_enqueue_script(

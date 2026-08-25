@@ -214,6 +214,9 @@ class INOS_Settings {
 			'archive_layout'           => 'list',
 			'show_breadcrumbs'         => 1,
 			'sticky_header_compact'    => 1,
+			'image_license_url'        => '',
+			'image_acquire_license_url'=> '',
+			'image_copyright_notice'   => '',
 		);
 	}
 
@@ -395,6 +398,9 @@ class INOS_Settings {
 			'web_stories_title',
 			'web_stories_view',
 			'also_read_title',
+			'image_copyright_notice',
+			'image_license_url',
+			'image_acquire_license_url',
 		);
 
 		foreach ( $text_keys as $key ) {
@@ -411,6 +417,8 @@ class INOS_Settings {
 		$out['ads_txt']                = isset( $values['ads_txt'] ) ? sanitize_textarea_field( wp_unslash( $values['ads_txt'] ) ) : $out['ads_txt'];
 		$out['contact_email']          = sanitize_email( $out['contact_email'] );
 		$out['contact_page_url']       = esc_url_raw( $out['contact_page_url'] );
+		$out['image_license_url']      = esc_url_raw( isset( $out['image_license_url'] ) ? $out['image_license_url'] : '' );
+		$out['image_acquire_license_url'] = esc_url_raw( isset( $out['image_acquire_license_url'] ) ? $out['image_acquire_license_url'] : '' );
 		$out['newsletter_webhook']     = esc_url_raw( $out['newsletter_webhook'] );
 
 		$int_keys = array(
