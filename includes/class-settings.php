@@ -217,16 +217,6 @@ class INOS_Settings {
 			'image_license_url'        => '',
 			'image_acquire_license_url'=> '',
 			'image_copyright_notice'   => '',
-			'enable_web_push'          => 0,
-			'firebase_api_key'         => '',
-			'firebase_auth_domain'     => '',
-			'firebase_project_id'      => '',
-			'firebase_storage_bucket'  => '',
-			'firebase_messaging_sender_id' => '',
-			'firebase_app_id'          => '',
-			'firebase_vapid_key'       => '',
-			'firebase_service_account' => '',
-			'push_prompt_delay'        => 8,
 		);
 	}
 
@@ -411,13 +401,6 @@ class INOS_Settings {
 			'image_copyright_notice',
 			'image_license_url',
 			'image_acquire_license_url',
-			'firebase_api_key',
-			'firebase_auth_domain',
-			'firebase_project_id',
-			'firebase_storage_bucket',
-			'firebase_messaging_sender_id',
-			'firebase_app_id',
-			'firebase_vapid_key',
 		);
 
 		foreach ( $text_keys as $key ) {
@@ -472,7 +455,6 @@ class INOS_Settings {
 			'content_width',
 			'button_radius',
 			'font_size_base',
-			'push_prompt_delay',
 		);
 
 		foreach ( $int_keys as $key ) {
@@ -556,7 +538,6 @@ class INOS_Settings {
 			'sticky_share',
 			'article_reader_tools',
 			'mid_article_also_read',
-			'enable_web_push',
 		);
 
 		$posted_checks = array();
@@ -748,22 +729,6 @@ class INOS_Settings {
 			$theme_logo = absint( get_theme_mod( 'custom_logo' ) );
 			if ( $theme_logo ) {
 				$out['logo_id'] = $theme_logo;
-			}
-		}
-
-		$delay = absint( isset( $out['push_prompt_delay'] ) ? $out['push_prompt_delay'] : 8 );
-		$out['push_prompt_delay'] = min( 60, max( 2, $delay ) );
-
-		if ( array_key_exists( 'firebase_service_account', $values ) ) {
-			$raw = trim( (string) $values['firebase_service_account'] );
-			if ( '' === $raw ) {
-				$out['firebase_service_account'] = isset( $out['firebase_service_account'] ) ? (string) $out['firebase_service_account'] : '';
-			} else {
-				$decoded = json_decode( $raw, true );
-				if ( is_array( $decoded ) && ! empty( $decoded['private_key'] ) && ! empty( $decoded['client_email'] ) ) {
-					$out['firebase_service_account'] = wp_json_encode( $decoded );
-					delete_transient( 'inos_fcm_access_token' );
-				}
 			}
 		}
 

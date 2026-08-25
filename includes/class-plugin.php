@@ -62,9 +62,6 @@ class INOS_Plugin {
 		INOS_Demo::init();
 		INOS_GitHub_Updater::init();
 		INOS_AMP::init();
-		if ( class_exists( 'INOS_Push' ) ) {
-			INOS_Push::init();
-		}
 		INOS_Web_Stories::init();
 
 		INOS_Activator::maybe_upgrade();

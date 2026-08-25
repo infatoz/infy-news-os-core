@@ -59,9 +59,6 @@ class INOS_Sitemaps {
 	 * Rewrite rules.
 	 */
 	public static function register_rewrites() {
-		if ( ! INOS_Activator::rewrites_ready() ) {
-			return;
-		}
 		add_rewrite_rule( '^sitemap\.xml$', 'index.php?inos_sitemap=index', 'top' );
 		add_rewrite_rule( '^sitemap-news\.xml$', 'index.php?inos_sitemap=news', 'top' );
 		add_rewrite_rule( '^news-sitemap\.xml$', 'index.php?inos_sitemap=news', 'top' );

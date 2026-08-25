@@ -28,9 +28,6 @@ class INOS_Feeds {
 	 * Register google-news feed.
 	 */
 	public static function register() {
-		if ( ! INOS_Activator::rewrites_ready() ) {
-			return;
-		}
 		if ( inos_get_option( 'enable_google_news_feed', 1 ) ) {
 			add_feed( 'google-news', array( __CLASS__, 'google_news' ) );
 		}

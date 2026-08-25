@@ -58,7 +58,6 @@ class INOS_Autoloader {
 		'INOS_GitHub_Updater' => 'includes/class-github-updater.php',
 		'INOS_AMP'          => 'includes/integrations/class-amp.php',
 		'INOS_Archives'     => 'includes/class-archives.php',
-		'INOS_Push'         => 'includes/push/class-push.php',
 		'INOS_Web_Stories'  => 'includes/integrations/class-web-stories.php',
 	);
 
@@ -80,13 +79,8 @@ class INOS_Autoloader {
 		}
 
 		$file = INOS_CORE_PATH . self::$map[ $class ];
-		if ( ! is_readable( $file ) ) {
-			return;
-		}
-		try {
+		if ( is_readable( $file ) ) {
 			require_once $file;
-		} catch ( \Throwable $e ) {
-			error_log( 'INOS autoload ' . $class . ': ' . $e->getMessage() . ' @ ' . $e->getFile() . ':' . $e->getLine() );
 		}
 	}
 }

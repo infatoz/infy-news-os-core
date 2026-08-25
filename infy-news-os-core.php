@@ -3,7 +3,7 @@
  * Plugin Name:       Infy News OS Core
  * Plugin URI:        https://infatoz.com
  * Description:       Core engine for Infy News OS — settings, editorial workflow, schema, Google News/Discover/Search optimization, AMP and Web Stories (official plugins), ads, and newsletter.
- * Version:           1.6.36
+ * Version:           1.6.38
  * Requires at least: 6.7
  * Requires PHP:      7.4
  * Author:            Infatoz Technologies LLP
@@ -23,7 +23,7 @@ if ( defined( 'INOS_CORE_VERSION' ) ) {
 	return;
 }
 
-define( 'INOS_CORE_VERSION', '1.6.36' );
+define( 'INOS_CORE_VERSION', '1.6.38' );
 define( 'INOS_CORE_FILE', __FILE__ );
 define( 'INOS_CORE_PATH', plugin_dir_path( __FILE__ ) );
 define( 'INOS_CORE_URL', plugin_dir_url( __FILE__ ) );
@@ -43,24 +43,7 @@ add_action( 'upgrader_process_complete', array( 'INOS_Activator', 'on_upgrader_c
 add_action(
 	'plugins_loaded',
 	static function () {
-		try {
-			if ( class_exists( 'INOS_AMP' ) ) {
-				INOS_AMP::start_custom_js_guard();
-			}
-		} catch ( \Throwable $e ) {
-			error_log( 'INOS AMP guard: ' . $e->getMessage() . ' @ ' . $e->getFile() . ':' . $e->getLine() );
-		}
-	},
-	-999
-);
-add_action(
-	'plugins_loaded',
-	static function () {
-		try {
-			load_plugin_textdomain( 'infy-news-os-core', false, dirname( INOS_CORE_BASENAME ) . '/languages' );
-			INOS_Plugin::instance()->init();
-		} catch ( \Throwable $e ) {
-			error_log( 'INOS init: ' . $e->getMessage() . ' @ ' . $e->getFile() . ':' . $e->getLine() );
-		}
+		load_plugin_textdomain( 'infy-news-os-core', false, dirname( INOS_CORE_BASENAME ) . '/languages' );
+		INOS_Plugin::instance()->init();
 	}
 );

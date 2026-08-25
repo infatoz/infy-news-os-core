@@ -261,16 +261,6 @@ class INOS_Labels {
 					'nl_placeholder'   => __( 'you@example.com', 'infy-news-os-core' ),
 				),
 			),
-			'push'       => array(
-				'title' => __( 'Web push', 'infy-news-os-core' ),
-				'keys'  => array(
-					'push_prompt_title' => __( 'Get story alerts', 'infy-news-os-core' ),
-					'push_prompt_text'  => __( 'We’ll notify you when a new article is published.', 'infy-news-os-core' ),
-					'push_allow'        => __( 'Allow', 'infy-news-os-core' ),
-					'push_not_now'      => __( 'Not now', 'infy-news-os-core' ),
-					'push_read_more'    => __( 'Read more', 'infy-news-os-core' ),
-				),
-			),
 		);
 	}
 
