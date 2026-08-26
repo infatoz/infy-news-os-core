@@ -121,10 +121,24 @@ class INOS_Schema {
 
 		$logo = inos_publisher_logo_url();
 		if ( $logo ) {
+			$org_name  = (string) inos_get_option( 'org_name', get_bloginfo( 'name' ) );
 			$logo_node = array(
-				'@type' => 'ImageObject',
-				'@id'   => home_url( '/#logo' ),
-				'url'   => $logo,
+				'@type'           => 'ImageObject',
+				'@id'             => home_url( '/#logo' ),
+				'url'             => $logo,
+				'contentUrl'      => $logo,
+				'creditText'      => $org_name,
+				'creator'         => array(
+					'@type' => 'Organization',
+					'name'  => $org_name,
+					'url'   => home_url( '/' ),
+				),
+				'copyrightNotice' => sprintf(
+					/* translators: 1: year, 2: publisher name */
+					__( '© %1$s %2$s. All rights reserved.', 'infy-news-os-core' ),
+					gmdate( 'Y' ),
+					$org_name
+				),
 			);
 			$logo_id = absint( inos_get_option( 'logo_id', 0 ) );
 			if ( ! $logo_id ) {

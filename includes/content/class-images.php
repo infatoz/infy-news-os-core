@@ -471,7 +471,10 @@ class INOS_Images {
 		$html  = '<figure class="inos-article__figure" itemprop="image" itemscope itemtype="https://schema.org/ImageObject">';
 		$html .= $img;
 		$url   = wp_get_attachment_image_url( $thumb_id, 'inos-discover' );
-		if ( $url && ( ! function_exists( 'inos_is_amp' ) || ! inos_is_amp() ) ) {
+		if ( ! $url ) {
+			$url = wp_get_attachment_image_url( $thumb_id, 'full' );
+		}
+		if ( $url ) {
 			$html .= '<meta itemprop="url" content="' . esc_url( $url ) . '" />';
 			$html .= '<meta itemprop="contentUrl" content="' . esc_url( $url ) . '" />';
 		}
@@ -485,8 +488,20 @@ class INOS_Images {
 		if ( ! empty( $rights['copyrightNotice'] ) ) {
 			$html .= '<meta itemprop="copyrightNotice" content="' . esc_attr( $rights['copyrightNotice'] ) . '" />';
 		}
+		if ( ! empty( $rights['creditText'] ) ) {
+			$html .= '<meta itemprop="creditText" content="' . esc_attr( (string) $rights['creditText'] ) . '" />';
+		}
 		if ( ! empty( $rights['creator']['name'] ) ) {
-			$html .= '<meta itemprop="creator" content="' . esc_attr( $rights['creator']['name'] ) . '" />';
+			$creator_type = isset( $rights['creator']['@type'] ) ? (string) $rights['creator']['@type'] : 'Person';
+			if ( 'Person' !== $creator_type ) {
+				$creator_type = 'Organization';
+			}
+			$html .= '<span itemprop="creator" itemscope itemtype="https://schema.org/' . esc_attr( $creator_type ) . '">';
+			$html .= '<meta itemprop="name" content="' . esc_attr( $rights['creator']['name'] ) . '" />';
+			if ( ! empty( $rights['creator']['url'] ) ) {
+				$html .= '<link itemprop="url" href="' . esc_url( $rights['creator']['url'] ) . '" />';
+			}
+			$html .= '</span>';
 		}
 		if ( $bits ) {
 			$html .= '<figcaption itemprop="caption">' . esc_html( implode( ' — ', $bits ) ) . '</figcaption>';
@@ -692,9 +707,6 @@ class INOS_Images {
 		} elseif ( $credit ) {
 			$obj['caption'] = $credit;
 		}
-		if ( $credit ) {
-			$obj['creditText'] = $credit;
-		}
 		foreach ( $rights as $key => $value ) {
 			if ( '' !== $value && null !== $value ) {
 				$obj[ $key ] = $value;
@@ -784,18 +796,21 @@ class INOS_Images {
 		}
 		if ( ! $creator && $org ) {
 			$creator = array(
-				'@type' => 'NewsMediaOrganization',
+				'@type' => 'Organization',
 				'name'  => $org,
 				'url'   => home_url( '/' ),
 			);
 		}
 
+		$credit_text = $credit ? $credit : $org;
+
 		$out = array(
-			'license'             => $license,
-			'acquireLicensePage'  => $acquire,
-			'copyrightNotice'     => $notice,
-			'copyrightHolder'     => array(
-				'@type' => 'NewsMediaOrganization',
+			'license'            => $license,
+			'acquireLicensePage' => $acquire,
+			'copyrightNotice'    => $notice,
+			'creditText'         => $credit_text,
+			'copyrightHolder'    => array(
+				'@type' => 'Organization',
 				'name'  => $org,
 				'url'   => home_url( '/' ),
 			),

@@ -79,8 +79,19 @@ class INOS_Autoloader {
 		}
 
 		$file = INOS_CORE_PATH . self::$map[ $class ];
-		if ( is_readable( $file ) ) {
+		if ( ! is_readable( $file ) ) {
+			return;
+		}
+		try {
 			require_once $file;
+		} catch ( \Throwable $e ) {
+			if ( defined( 'WP_CONTENT_DIR' ) ) {
+				@file_put_contents(
+					WP_CONTENT_DIR . '/inos-last-fatal.txt',
+					gmdate( 'c' ) . ' autoload ' . $class . ': ' . $e->getMessage() . ' in ' . $e->getFile() . ':' . $e->getLine() . "\n",
+					FILE_APPEND
+				);
+			}
 		}
 	}
 }
