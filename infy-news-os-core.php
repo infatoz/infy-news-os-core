@@ -3,7 +3,7 @@
  * Plugin Name:       Infy News OS Core
  * Plugin URI:        https://infatoz.com
  * Description:       Core engine for Infy News OS — settings, editorial workflow, schema, Google News/Discover/Search optimization, AMP and Web Stories (official plugins), ads, and newsletter.
- * Version:           1.6.41
+ * Version:           1.6.42
  * Requires at least: 6.7
  * Requires PHP:      7.4
  * Author:            Infatoz Technologies LLP
@@ -23,7 +23,7 @@ if ( defined( 'INOS_CORE_VERSION' ) ) {
 	return;
 }
 
-define( 'INOS_CORE_VERSION', '1.6.41' );
+define( 'INOS_CORE_VERSION', '1.6.42' );
 define( 'INOS_CORE_FILE', __FILE__ );
 define( 'INOS_CORE_PATH', plugin_dir_path( __FILE__ ) );
 define( 'INOS_CORE_URL', plugin_dir_url( __FILE__ ) );
@@ -64,6 +64,30 @@ if ( defined( 'WP_SANDBOX_SCRAPING' ) ) {
 }
 
 require_once INOS_CORE_PATH . 'includes/class-helpers.php';
+
+/*
+ * Site Kit (and similar) open output buffers on plugins_loaded and can inject
+ * custom <script> tags after the AMP sanitizer. Start our strip buffer first.
+ */
+add_action(
+	'plugins_loaded',
+	static function () {
+		try {
+			if ( class_exists( 'INOS_AMP' ) ) {
+				INOS_AMP::start_custom_js_guard();
+			}
+		} catch ( \Throwable $e ) {
+			if ( defined( 'WP_CONTENT_DIR' ) ) {
+				@file_put_contents(
+					WP_CONTENT_DIR . '/inos-last-fatal.txt',
+					gmdate( 'c' ) . ' AMP guard: ' . $e->getMessage() . ' in ' . $e->getFile() . ':' . $e->getLine() . "\n",
+					FILE_APPEND
+				);
+			}
+		}
+	},
+	-999
+);
 
 add_action(
 	'init',
